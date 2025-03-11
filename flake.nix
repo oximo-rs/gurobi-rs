@@ -52,7 +52,7 @@
           # this is the devshell loaded by default (also e.g. by nix-direnv)
           default = v110;
 
-          # to switch to a particular version, use `nix devshell`. For example, to switch to Gurobi 9.5 devshell:
+          # to switch to a particular version, use `nix develop`. For example, to switch to Gurobi 9.5 devshell:
           # ```sh
           # nix develop .#v95
           # ```
