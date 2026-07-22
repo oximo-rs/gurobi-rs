@@ -16,9 +16,9 @@ exclude = ["/tests"]
 
 [features]
 default = []
-gurobi12 = ["grb-sys2", "grb-sys2/gurobi12"]
-gurobi11 = ["grb-sys2"]
-gurobi10 = ["grb-sys2"]
+gurobi12 = ["guro-sys", "guro-sys/gurobi12"]
+gurobi11 = ["guro-sys"]
+gurobi10 = ["guro-sys"]
 
 
 [package.metadata.docs.rs]
@@ -29,7 +29,7 @@ rustdoc-args = ["--html-in-header", "doc/katex-header.html"]
 fnv = "^1.0"
 anyhow = "^1.0"
 cstr-enum = "^1.0"
-grb-sys2 = { path = "../grb-sys2", optional = true }
+guro-sys = { path = "../guro-sys", optional = true }
 grb-macro = { path = "../grb-macro", version = "0.1.0" }
 cfg-if = "1.0.0"
 

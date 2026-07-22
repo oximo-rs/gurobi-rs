@@ -1,5 +1,5 @@
 [package]
-name = "grb-sys2"
+name = "guro-sys"
 version = "12.1.2"
 edition = "2018"
 build = "build.rs"
