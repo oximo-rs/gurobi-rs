@@ -92,8 +92,8 @@ impl Parse for GrbRangeExpr {
             }
         }
         Ok(GrbRangeExpr {
-            lb: expr.from,
-            ub: expr.to,
+            lb: expr.start,
+            ub: expr.end,
         })
     }
 }

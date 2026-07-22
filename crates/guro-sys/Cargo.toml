@@ -11,10 +11,10 @@ homepage = "https://github.com/oximo-rs/gurobi-rs/"
 repository = "https://github.com/oximo-rs/gurobi-rs/"
 
 [build-dependencies]
-anyhow = "1.0.83"
+anyhow = "1.0.104"
 
 [dependencies]
-anyhow = { version = "1.0.83", optional = true }
+anyhow = { version = "1.0.104", optional = true }
 
 [features]
 # Gurobi 12 renamed the env-creation functions and added version arguments.
