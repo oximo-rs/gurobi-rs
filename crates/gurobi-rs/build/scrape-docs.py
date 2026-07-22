@@ -63,10 +63,7 @@ def _wrap_doc_paragraph(parameters: Dict[str, str], paragraph: str) -> str:
 
 
 def create_body_file(path: Path, parameters: Dict[str, str], pdata: dict):
-    paragraphs = (
-        _wrap_doc_paragraph(parameters, para)
-        for para in pdata["doc"]
-    )
+    paragraphs = (_wrap_doc_paragraph(parameters, para) for para in pdata["doc"])
     body = "\n\n".join(paragraphs)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fp:
