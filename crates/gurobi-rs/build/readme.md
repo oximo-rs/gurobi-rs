@@ -12,10 +12,17 @@ uv run scrape-docs.py
 uv run check-for-missing.py
 ```
 
+For Gurobi 13, select the current Sphinx documentation scraper explicitly:
+
+```sh
+uv run scrape-docs.py --gurobi13
+uv run check-for-missing.py --gurobi13
+```
+
 `attrs.csv` has the following format:
 
 ```csv
-attr,dtype,otype
+attr,dtype,otype,feature
 ```
 
 where `attr` is the Gurobi attribute name (case sensitive), `dtype` is the datatype which governs the marker trait used for blanket impls.
@@ -30,7 +37,8 @@ The allowed values for `dtype` are described below:
 | `custom` | Custom datatype, no marker traits will be added. |
 
 The `otype` is the object type to which this attribute belongs (`Model`, `Var`, `Constr`, etc).
-The allowed values for `otype` are listed below.
+The allowed values for `otype` are listed below. The optional `feature` field restricts an entry to a Cargo feature;
+currently, `gurobi13` is the only supported value. Leave it empty for attributes available in every supported version.
 
 | `otype`   | Description                           |
 | --------- | ------------------------------------- |
@@ -69,10 +77,11 @@ Note the two marker traits.  The latter would not be implemented if `otype = "mo
 `params.csv` has the format similar format,
 
 ```csv
-param,dtype
+param,dtype,feature
 ```
 
-where `param` is the Gurobi parameter name (case sensitive) and `dtype` has the same meaning as above.
+where `param` is the Gurobi parameter name (case sensitive), `dtype` has the same meaning as above, and the optional
+`feature` field has the same version-gating behavior as for attributes.
 Note that there are currently no `char` parameters implemented in Gurobi.
 
 The parameters always relate to an `Env`, so marker traits are not needed.  Below is example output in `src/parameter/param_enums.rs`
