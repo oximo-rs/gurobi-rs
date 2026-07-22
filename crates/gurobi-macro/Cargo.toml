@@ -1,5 +1,5 @@
 [package]
-name = "grb-macro"
+name = "gurobi-macro"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

@@ -30,7 +30,7 @@ fnv.workspace = true
 anyhow.workspace = true
 cstr-enum.workspace = true
 guro-sys = { workspace = true, optional = true }
-grb-macro.workspace = true
+gurobi-macro.workspace = true
 cfg-if.workspace = true
 
 [dev-dependencies]

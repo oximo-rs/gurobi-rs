@@ -13,7 +13,7 @@ homepage = "https://github.com/oximo-rs/gurobi-rs"
 [workspace.dependencies]
 # Internal crates
 guro-sys = { path = "crates/guro-sys" }
-grb-macro = { path = "crates/grb-macro" }
+gurobi-macro = { path = "crates/gurobi-macro" }
 
 # External
 anyhow = "1.0.104"

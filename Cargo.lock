@@ -161,19 +161,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4eba85ea1d0a966a983acd07deee566e67395d2d96b6fb39e62b5a833f1eb0b"
 
 [[package]]
-name = "grb-macro"
+name = "guro-sys"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+]
+
+[[package]]
+name = "gurobi-macro"
 version = "1.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.3",
-]
-
-[[package]]
-name = "guro-sys"
-version = "1.0.0"
-dependencies = [
- "anyhow",
 ]
 
 [[package]]
@@ -186,8 +186,8 @@ dependencies = [
  "csv",
  "fnv",
  "gag",
- "grb-macro",
  "guro-sys",
+ "gurobi-macro",
  "proc-macro2",
  "proptest",
  "quote",

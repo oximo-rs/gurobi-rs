@@ -46,19 +46,19 @@ pub fn version() -> (i32, i32, i32) {
 /// ```
 ///
 #[doc(inline)]
-pub use grb_macro::add_var;
+pub use gurobi_macro::add_var;
 
 /// Equivalent to calling [`add_var!`]`(model, Continuous, ...)`
 #[doc(inline)]
-pub use grb_macro::add_ctsvar;
+pub use gurobi_macro::add_ctsvar;
 
 /// Equivalent to calling [`add_var!`]`(model, Binary, ...)`
 #[doc(inline)]
-pub use grb_macro::add_binvar;
+pub use gurobi_macro::add_binvar;
 
 /// Equivalent to calling [`add_var!`]`(model, Integer, ...)`
 #[doc(inline)]
-pub use grb_macro::add_intvar;
+pub use gurobi_macro::add_intvar;
 
 /// A proc-macro for creating constraint objects.
 ///
@@ -122,7 +122,7 @@ pub use grb_macro::add_intvar;
 /// ```
 ///
 #[doc(inline)]
-pub use grb_macro::c;
+pub use gurobi_macro::c;
 
 // public modules
 #[path = "attribute.rs"]
