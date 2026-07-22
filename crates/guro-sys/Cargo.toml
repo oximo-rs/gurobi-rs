@@ -1,20 +1,20 @@
 [package]
 name = "guro-sys"
-version = "12.1.2"
-edition = "2018"
-build = "build.rs"
-license = "MIT"
-links = "gurobi"
-authors = ["Yannik Rist <yannik.rist@uqconnect.edu.au>"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
 description = "Gurobi C API FFI declarations."
-homepage = "https://github.com/oximo-rs/gurobi-rs/"
-repository = "https://github.com/oximo-rs/gurobi-rs/"
+build = "build.rs"
+links = "gurobi"
 
 [build-dependencies]
-anyhow = "1.0.104"
+anyhow.workspace = true
 
 [dependencies]
-anyhow = { version = "1.0.104", optional = true }
+anyhow = { workspace = true, optional = true }
 
 [features]
 # Gurobi 12 renamed the env-creation functions and added version arguments.

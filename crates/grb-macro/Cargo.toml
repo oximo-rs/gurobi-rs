@@ -1,18 +1,18 @@
 [package]
 name = "grb-macro"
-version = "0.1.0"
-edition = "2018"
-license = "MIT"
-authors = ["Yannik Rist <yannik.rist@uqconnect.edu.au>"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
 description = "Procedural macros for the gurobi-rs crate."
-homepage = "https://github.com/oximo-rs/gurobi-rs/"
-repository = "https://github.com/oximo-rs/gurobi-rs/"
 readme = "../gurobi-rs/README.md"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-syn = { version = "3", features=["full", "parsing", "printing", "derive", "proc-macro", "clone-impls"], default-features=false }
-quote = "^1.0"
-proc-macro2 = "^1.0"
+syn.workspace = true
+quote.workspace = true
+proc-macro2.workspace = true

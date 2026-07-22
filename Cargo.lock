@@ -162,7 +162,7 @@ checksum = "e4eba85ea1d0a966a983acd07deee566e67395d2d96b6fb39e62b5a833f1eb0b"
 
 [[package]]
 name = "grb-macro"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -171,14 +171,14 @@ dependencies = [
 
 [[package]]
 name = "guro-sys"
-version = "12.1.2"
+version = "1.0.0"
 dependencies = [
  "anyhow",
 ]
 
 [[package]]
 name = "gurobi-rs"
-version = "3.0.1"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "cfg-if",
