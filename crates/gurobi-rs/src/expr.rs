@@ -25,6 +25,13 @@ pub enum Expr {
     Constant(f64),
 }
 
+/// Internal helper used by the `c!` macro to coerce operands into [`Expr`].
+#[doc(hidden)]
+#[inline]
+pub fn __into_expr<E: Into<Expr>>(e: E) -> Expr {
+    e.into()
+}
+
 impl Expr {
     fn into_higher_order(self) -> Expr {
         use self::Expr::*;

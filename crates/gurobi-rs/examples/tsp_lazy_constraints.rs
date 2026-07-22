@@ -170,7 +170,7 @@ fn cycle_to_node_order(cycle: &[(usize, usize)]) -> Vec<usize> {
     let mut order = Vec::with_capacity(cycle.len() + 1);
 
     let mut iter = cycle.iter();
-    let (mut a, mut b) = iter.next().unwrap();
+    let &(mut a, mut b) = iter.next().unwrap();
     // a or b could be the first node, fix this up afterwards to avoid a lookahead
     order.push(a);
     order.push(b);

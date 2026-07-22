@@ -14,7 +14,7 @@ use std::{
 /// also be careful to never modify the data pointed to by the returned character pointer.
 pub(crate) unsafe fn copy_c_str(s: ffi::c_str) -> String {
     debug_assert!(!s.is_null());
-    CStr::from_ptr(s).to_string_lossy().into_owned() // to_string_lossy().into_owned() ALWAYS clones
+    unsafe { CStr::from_ptr(s) }.to_string_lossy().into_owned() // to_string_lossy().into_owned() ALWAYS clones
 }
 
 // FIXME: this needs to be re-done, as_mut_ptr should take &mut self,

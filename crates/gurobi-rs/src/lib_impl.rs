@@ -142,6 +142,8 @@ pub mod prelude;
 #[doc(no_inline)]
 pub use attribute::attr;
 pub use expr::Expr;
+#[doc(hidden)]
+pub use expr::__into_expr;
 #[doc(no_inline)]
 pub use parameter::param;
 

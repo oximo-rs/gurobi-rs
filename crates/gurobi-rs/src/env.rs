@@ -46,7 +46,7 @@ impl AsPtr for Env {
     type Ptr = ffi::GRBenv;
     unsafe fn as_mut_ptr(&self) -> *mut Self::Ptr {
         self.gurobi_allocated
-            .unwrap_or_else(|| self.user_allocated.as_mut_ptr())
+            .unwrap_or_else(|| unsafe { self.user_allocated.as_mut_ptr() })
     }
 }
 

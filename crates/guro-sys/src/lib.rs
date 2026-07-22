@@ -21,7 +21,7 @@ pub struct GRBsvec {
 }
 
 // Environment Creation and Destruction
-extern "C" {
+unsafe extern "C" {
     // Gurobi 12 renamed these to `*internal`, adding version arguments.
     // Select the correct signature via the `gurobi12` feature (see gurobi-rs's
     // `gurobi10`/`gurobi11`/`gurobi12` features and `src/ffi.rs` shims).
@@ -110,7 +110,7 @@ macro_rules! get_funca_constr {
 }
 
 // Model Creation and Modification
-extern "C" {
+unsafe extern "C" {
     pub fn GRBnewmodel(
         env: *mut GRBenv,
         modelP: *mut *mut GRBmodel,
@@ -354,7 +354,7 @@ extern "C" {
 }
 
 // Model Solution
-extern "C" {
+unsafe extern "C" {
 
     pub fn GRBoptimize(model: *mut GRBmodel) -> c_int;
 
@@ -380,7 +380,7 @@ extern "C" {
 }
 
 // Model Queries
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgetcoeff(
         model: *mut GRBmodel,
         constr: c_int,
@@ -559,7 +559,7 @@ extern "C" {
 }
 
 // Input/Output
-extern "C" {
+unsafe extern "C" {
     pub fn GRBreadmodel(env: *mut GRBenv, filename: c_str, modelP: *mut *mut GRBmodel) -> c_int;
 
     pub fn GRBread(model: *mut GRBmodel, filename: c_str) -> c_int;
@@ -568,7 +568,7 @@ extern "C" {
 
 }
 
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgetattrinfo(
         model: *mut GRBmodel,
         attrname: c_str,
@@ -578,7 +578,7 @@ extern "C" {
     ) -> c_int;
 }
 
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgetintattr(model: *mut GRBmodel, attrname: c_str, valueP: *mut c_int) -> c_int;
 
     pub fn GRBgetdblattr(model: *mut GRBmodel, attrname: c_str, valueP: *mut c_double) -> c_int;
@@ -592,7 +592,7 @@ extern "C" {
     pub fn GRBsetstrattr(model: *mut GRBmodel, attrname: c_str, value: c_str) -> c_int;
 }
 
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgetintattrelement(
         model: *mut GRBmodel,
         attrname: c_str,
@@ -650,7 +650,7 @@ extern "C" {
     ) -> c_int;
 }
 
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgetintattrarray(
         model: *mut GRBmodel,
         attrname: c_str,
@@ -716,7 +716,7 @@ extern "C" {
     ) -> c_int;
 }
 
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgetintattrlist(
         model: *mut GRBmodel,
         attrname: c_str,
@@ -783,7 +783,7 @@ extern "C" {
 }
 
 // Parameter Management and Tuning
-extern "C" {
+unsafe extern "C" {
     pub fn GRBtunemodel(model: *mut GRBmodel) -> c_int;
 
     pub fn GRBgettuneresult(model: *mut GRBmodel, n: c_int) -> c_int;
@@ -831,7 +831,7 @@ extern "C" {
 }
 
 // Monitoring Progress - Logging and Callbacks
-extern "C" {
+unsafe extern "C" {
     pub fn GRBmsg(env: *mut GRBenv, message: c_str);
 
     pub fn GRBsetcallbackfunc(
@@ -852,7 +852,7 @@ extern "C" {
 }
 
 // Modifying Solver Behaviour - Callbacks
-extern "C" {
+unsafe extern "C" {
     pub fn GRBcbcut(
         cbdata: *mut c_void,
         cutlen: c_int,
@@ -883,12 +883,12 @@ extern "C" {
 }
 
 // Error Handling
-extern "C" {
+unsafe extern "C" {
     pub fn GRBgeterrormsg(env: *mut GRBenv) -> c_str;
 }
 
 // Advanced simplex routines
-extern "C" {
+unsafe extern "C" {
     pub fn GRBFSolve(model: *mut GRBmodel, b: *mut GRBsvec, x: *mut GRBsvec) -> c_int;
 
     pub fn GRBBSolve(model: *mut GRBmodel, b: *mut GRBsvec, x: *mut GRBsvec) -> c_int;

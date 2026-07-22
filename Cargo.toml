@@ -5,7 +5,7 @@ members = ["crates/*"]
 [workspace.package]
 version = "1.0.0"
 authors = ["Germán Martín Heim <german.martin.heim@gmail.com>"]
-edition = "2021"
+edition = "2024"
 license = "MIT"
 repository = "https://github.com/oximo-rs/gurobi-rs"
 homepage = "https://github.com/oximo-rs/gurobi-rs"

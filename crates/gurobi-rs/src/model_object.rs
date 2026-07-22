@@ -56,7 +56,7 @@ macro_rules! create_model_obj_ty {
             }
 
             unsafe fn gurobi_remove(m: *mut ffi::GRBmodel, inds: &[i32]) -> ffi::c_int {
-                $delfunc(m, inds.len() as i32, inds.as_ptr())
+                unsafe { $delfunc(m, inds.len() as i32, inds.as_ptr()) }
             }
 
             fn model_id(&self) -> u32 {

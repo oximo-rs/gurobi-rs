@@ -6,13 +6,13 @@ cfg_if::cfg_if! {
             use super::*;
             pub unsafe fn empty_env(env: *mut *mut GRBenv) -> c_int{
                 let (major, minor, technical) = crate::version();
-                return GRBemptyenvinternal(env, major, minor, technical)
+                unsafe { GRBemptyenvinternal(env, major, minor, technical) }
             }
 
 
             pub unsafe fn load_env(env: *mut *mut GRBenv, logfilename: c_str) -> c_int{
                 let (major, minor, technical) = crate::version();
-                return GRBloadenvinternal(env, logfilename, major, minor, technical)
+                unsafe { GRBloadenvinternal(env, logfilename, major, minor, technical) }
             }
         }
     } else if #[cfg(any(feature = "gurobi11", feature = "gurobi10"))] {
@@ -22,12 +22,12 @@ cfg_if::cfg_if! {
             use super::*;
 
             pub unsafe fn empty_env(env: *mut *mut GRBenv) -> c_int{
-                return GRBemptyenv(env)
+                unsafe { GRBemptyenv(env) }
             }
 
 
             pub unsafe fn load_env(env: *mut *mut GRBenv, logfilename: c_str) -> c_int{
-                return GRBloadenv(env, logfilename)
+                unsafe { GRBloadenv(env, logfilename) }
             }
         }
     } else {

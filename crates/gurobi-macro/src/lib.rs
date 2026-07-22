@@ -42,9 +42,9 @@ impl Parse for InequalityConstr {
 impl ToTokens for InequalityConstr {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let lhs = self.lhs.as_ref();
-        let lhs = quote_spanned! { lhs.span()=> gurobi_rs::Expr::from(#lhs) };
+        let lhs = quote_spanned! { lhs.span()=> gurobi_rs::__into_expr(#lhs) };
         let rhs = self.rhs.as_ref();
-        let rhs = quote_spanned! { rhs.span()=> gurobi_rs::Expr::from(#rhs) };
+        let rhs = quote_spanned! { rhs.span()=> gurobi_rs::__into_expr(#rhs) };
         let sense = &self.sense;
         let ts = quote! {
           gurobi_rs::constr::IneqExpr{
@@ -115,7 +115,7 @@ impl Parse for RangeConstr {
 impl ToTokens for RangeConstr {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let expr = &self.expr;
-        let expr = quote_spanned! { expr.span() => gurobi_rs::Expr::from(#expr) };
+        let expr = quote_spanned! { expr.span() => gurobi_rs::__into_expr(#expr) };
 
         let lb = self.range.lb_to_tokens();
         let ub = self.range.ub_to_tokens();
