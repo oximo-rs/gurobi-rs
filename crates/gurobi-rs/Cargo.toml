@@ -36,6 +36,9 @@ cfg-if.workspace = true
 [dev-dependencies]
 proptest.workspace = true
 trybuild.workspace = true
+
+# gag redirects stdout via Unix file descriptors and does not build on Windows.
+[target.'cfg(unix)'.dev-dependencies]
 gag.workspace = true
 
 [build-dependencies]
