@@ -1,0 +1,13 @@
+[project]
+name = "gurobi-rs-build"
+version = "0.1.0"
+description = "Doc-scraping and enum-generation tooling for gurobi-rs"
+requires-python = ">=3.9"
+dependencies = [
+    "aiohttp",
+    "beautifulsoup4",
+    "pandas",
+]
+
+[tool.uv]
+package = false

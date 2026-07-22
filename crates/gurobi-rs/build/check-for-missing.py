@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run
 import pandas as pd
 from utils import *
 import asyncio
