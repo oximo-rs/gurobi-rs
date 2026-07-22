@@ -23,7 +23,7 @@ pub struct GRBsvec {
 // Environment Creation and Destruction
 extern "C" {
     // Gurobi 12 renamed these to `*internal`, adding version arguments.
-    // Select the correct signature via the `gurobi12` feature (see grb's
+    // Select the correct signature via the `gurobi12` feature (see gurobi-rs's
     // `gurobi10`/`gurobi11`/`gurobi12` features and `src/ffi.rs` shims).
     #[cfg(feature = "gurobi12")]
     pub fn GRBemptyenvinternal(

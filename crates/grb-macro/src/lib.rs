@@ -1,4 +1,4 @@
-//! See the [`grb`](https://docs.rs/grb) crate for documentation.
+//! See the [`gurobi-rs`](https://docs.rs/gurobi-rs) crate for documentation.
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2, TokenTree};
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::parse::{Parse, ParseStream};
@@ -17,9 +17,9 @@ impl Parse for InequalityConstr {
 
         let cmpexpr: syn::ExprBinary = input.parse()?;
         let sense = match cmpexpr.op {
-            Eq(..) => quote! { grb::ConstrSense::Equal },
-            Le(..) => quote! { grb::ConstrSense::Less },
-            Ge(..) => quote! { grb::ConstrSense::Greater },
+            Eq(..) => quote! { gurobi_rs::ConstrSense::Equal },
+            Le(..) => quote! { gurobi_rs::ConstrSense::Less },
+            Ge(..) => quote! { gurobi_rs::ConstrSense::Greater },
             Lt(..) | Gt(..) | Ne(..) => {
                 return Err(Error::new_spanned(cmpexpr.op, "expected >=, <= or =="));
             }
@@ -42,12 +42,12 @@ impl Parse for InequalityConstr {
 impl ToTokens for InequalityConstr {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let lhs = self.lhs.as_ref();
-        let lhs = quote_spanned! { lhs.span()=> grb::Expr::from(#lhs) };
+        let lhs = quote_spanned! { lhs.span()=> gurobi_rs::Expr::from(#lhs) };
         let rhs = self.rhs.as_ref();
-        let rhs = quote_spanned! { rhs.span()=> grb::Expr::from(#rhs) };
+        let rhs = quote_spanned! { rhs.span()=> gurobi_rs::Expr::from(#rhs) };
         let sense = &self.sense;
         let ts = quote! {
-          grb::constr::IneqExpr{
+          gurobi_rs::constr::IneqExpr{
             lhs: #lhs,
             sense: #sense,
             rhs: #rhs,
@@ -67,14 +67,14 @@ impl GrbRangeExpr {
     pub fn ub_to_tokens(&self) -> TokenStream2 {
         match self.ub {
             Some(ref x) => quote_spanned! { x.span()=>  #x as f64},
-            None => quote! { grb::INFINITY },
+            None => quote! { gurobi_rs::INFINITY },
         }
     }
 
     pub fn lb_to_tokens(&self) -> TokenStream2 {
         match self.lb {
             Some(ref x) => quote_spanned! { x.span()=> #x as f64},
-            None => quote! { -grb::INFINITY },
+            None => quote! { -gurobi_rs::INFINITY },
         }
     }
 }
@@ -115,13 +115,13 @@ impl Parse for RangeConstr {
 impl ToTokens for RangeConstr {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let expr = &self.expr;
-        let expr = quote_spanned! { expr.span() => grb::Expr::from(#expr) };
+        let expr = quote_spanned! { expr.span() => gurobi_rs::Expr::from(#expr) };
 
         let lb = self.range.lb_to_tokens();
         let ub = self.range.ub_to_tokens();
 
         let ts: TokenStream2 = quote! {
-          grb::constr::RangeExpr{
+          gurobi_rs::constr::RangeExpr{
             expr: #expr,
             ub: #ub,
             lb: #lb,
@@ -262,7 +262,7 @@ impl OptArgs {
         let obj = &self.obj;
         let (lb, ub) = match self.bounds.0 {
             Some(ref bounds) => (bounds.lb_to_tokens(), bounds.ub_to_tokens()),
-            None => (quote! { 0.0f64 }, quote! { grb::INFINITY }),
+            None => (quote! { 0.0f64 }, quote! { gurobi_rs::INFINITY }),
         };
 
         quote! { #model.add_var(#name, #vtype, #obj as f64, #lb, #ub, std::iter::empty() ) }
@@ -360,13 +360,13 @@ macro_rules! specialised_addvar {
     };
 }
 
-specialised_addvar!(AddBinVarInput, quote! { grb::VarType::Binary }, add_binvar);
+specialised_addvar!(AddBinVarInput, quote! { gurobi_rs::VarType::Binary }, add_binvar);
 specialised_addvar!(
     AddCtsVarInput,
-    quote! { grb::VarType::Continuous },
+    quote! { gurobi_rs::VarType::Continuous },
     add_ctsvar
 );
-specialised_addvar!(AddIntVarInput, quote! { grb::VarType::Integer }, add_intvar);
+specialised_addvar!(AddIntVarInput, quote! { gurobi_rs::VarType::Integer }, add_intvar);
 
 #[proc_macro]
 pub fn add_var(expr: proc_macro::TokenStream) -> proc_macro::TokenStream {

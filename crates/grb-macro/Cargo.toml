@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2018"
 license = "MIT"
 authors = ["Yannik Rist <yannik.rist@uqconnect.edu.au>"]
-description = "Procedural macros for the grb crate."
-homepage = "https://github.com/ykrist/rust-grb/"
-repository = "https://github.com/ykrist/rust-grb/"
-readme = "../grb/README.md"
+description = "Procedural macros for the gurobi-rs crate."
+homepage = "https://github.com/oximo-rs/gurobi-rs/"
+repository = "https://github.com/oximo-rs/gurobi-rs/"
+readme = "../gurobi-rs/README.md"
 
 [lib]
 proc-macro = true
