@@ -9,8 +9,8 @@ If the attribute is set to 1, the constraint is included in the IIS and the IIS 
 possibility of removing it.
 
 Note that setting this attribute to 0 may make the resulting subsystem feasible (or consistent), which would then make
-it impossible to construct an IIS. Trying anyway will result in a GRB_ERROR_IIS_NOT_INFEASIBLE error. Similarly, setting
-this attribute to 1 may result in an IIS that is not irreducible. More precisely, the system would only be irreducible
-with respect to the model elements that have force values of -1 or 0.
+it impossible to construct an IIS. Trying anyway will result in a IIS_NOT_INFEASIBLE error. Similarly, setting this
+attribute to 1 may result in an IIS that is not irreducible. More precisely, the system would only be irreducible with
+respect to the model elements that have force values of -1 or 0.
 
 See the Model.computeIIS documentation for more details.

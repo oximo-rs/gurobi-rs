@@ -4,7 +4,7 @@ to 0 will create a model with no objective (i.e., a feasibility model). If you w
 model to a single-objective model you also need to set `NumObj` to 0 and call model update before installing a new
 single objective.
 
-You can use the ObjNumber parameter, in conjunction with multi-objective attributes (ObjN, ObjNName, etc.), to query or
-modify attributes for different objectives. The value of ObjNumber should always be less than NumObj.
+You can use the ObjNumber parameter, in conjunction with multi-objective attributes ( `ObjN` , `ObjNName` , etc.), to
+query or modify attributes for different objectives. The value of ObjNumber should always be less than `NumObj` .
 
 Please refer to the discussion of Multiple Objectives for more information on the use of alternative objectives.

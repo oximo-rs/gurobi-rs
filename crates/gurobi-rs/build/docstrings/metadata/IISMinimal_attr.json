@@ -1,6 +1,6 @@
 {
   "name": "IISMinimal",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/iisminimal.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#iisminimal",
   "dtype": "int",
   "otype": "model",
   "modifiable": false

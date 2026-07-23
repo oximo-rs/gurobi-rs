@@ -3,15 +3,11 @@ large-neighborhood search to try to improve the current incumbent solution.
 
 This parameter determines where that heuristic runs. Options are:
 
-Before the root relaxation is solved (16)
-
-At the start of the root cut loop (8)
-
-At the end of the root cut loop (4)
-
-At the nodes of the branch-and-cut search (2)
-
-When the branch-and-cut search terminates (1)
+- Before the root relaxation is solved (16)
+- At the start of the root cut loop (8)
+- At the end of the root cut loop (4)
+- At the nodes of the branch-and-cut search (2)
+- When the branch-and-cut search terminates (1)
 
 The parameter value is a bit vector, where each bit turns the heuristic on or off at that place. The numerical values
 next to the options listed above indicate which bit controls the corresponding option. Thus, for example, to enable the

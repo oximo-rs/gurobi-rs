@@ -1,6 +1,6 @@
 {
   "name": "NumObj",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/numobj.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#numobj",
   "dtype": "int",
   "otype": "model",
   "modifiable": true

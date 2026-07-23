@@ -430,6 +430,25 @@ impl Model {
     where
         F: Callback,
     {
+        self.call_with_callback_impl(gurobi_routine, callback, |ptr, cb, ud| unsafe {
+            ffi::GRBsetcallbackfunc(ptr, cb, ud)
+        })
+    }
+
+    fn call_with_callback_impl<F, R>(
+        &mut self,
+        gurobi_routine: unsafe extern "C" fn(*mut ffi::GRBmodel) -> c_int,
+        callback: &mut F,
+        register_cb: R,
+    ) -> Result<()>
+    where
+        F: Callback,
+        R: Fn(
+            *mut ffi::GRBmodel,
+            Option<extern "C" fn(*mut ffi::GRBmodel, *mut ffi::c_void, c_int, *mut ffi::c_void) -> c_int>,
+            *mut ffi::c_void,
+        ) -> c_int,
+    {
         self.update()?;
         let nvars = self.get_attr(attr::NumVars)? as usize;
         let mut usrdata = UserCallbackData {
@@ -440,7 +459,7 @@ impl Model {
 
         unsafe {
             let res = self
-                .check_apicall(ffi::GRBsetcallbackfunc(
+                .check_apicall(register_cb(
                     self.ptr,
                     Some(callback_wrapper),
                     transmute(&mut usrdata),
@@ -470,6 +489,30 @@ impl Model {
         F: Callback,
     {
         self.call_with_callback(ffi::GRBoptimize, callback)
+    }
+
+    /// (Gurobi 13+) Like [`Model::optimize_with_callback`] but only fires the callback for
+    /// `where` codes whose bit is set in `wheres`. Bit `n` corresponds to `where == n`
+    /// (e.g. `1 << callback::MIPSOL`). Routes through `GRBsetcallbackfuncadv`.
+    #[cfg(feature = "gurobi13")]
+    pub fn optimize_with_callback_filtered<F>(
+        &mut self,
+        callback: &mut F,
+        wheres: u32,
+    ) -> Result<()>
+    where
+        F: Callback,
+    {
+        self.call_with_callback_impl(ffi::GRBoptimize, callback, move |ptr, cb, ud| unsafe {
+            ffi::GRBsetcallbackfuncadv(ptr, cb, ud, wheres)
+        })
+    }
+
+    /// (Gurobi 13+) Reset every parameter on this model's environment to its default value.
+    /// Wraps `GRBresetparams`.
+    #[cfg(feature = "gurobi13")]
+    pub fn reset_params(&mut self) -> Result<()> {
+        self.env.reset_params()
     }
 
     /// Compute an Irreducible Inconsistent Subsystem (IIS) of the model.  The constraints in the IIS can be identified
@@ -1125,6 +1168,48 @@ impl Model {
                 coeffs.len() as ffi::c_int,
                 coeffs.as_mut_ptr(),
                 options.as_ptr(),
+            )
+        })?;
+
+        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+    }
+
+    /// (Gurobi 13+) Add a general nonlinear constraint $y = f(x_1, \ldots, x_k)$ defined by an
+    /// expression tree. The tree is given as three parallel arrays of length `nnodes`:
+    ///
+    /// - `opcode[i]`: the [`Opcode`](crate::Opcode) at node `i` (cast to `i32`).
+    /// - `data[i]`: numeric payload — for `Opcode::Constant` it is the constant value, for
+    ///   `Opcode::Variable` it is the variable index (as `f64`), otherwise it is unused.
+    /// - `parent[i]`: the index of the parent node. The root node (the one whose value equals
+    ///   `resvar`) must have `parent = -1`.
+    ///
+    /// Wraps `GRBaddgenconstrNL`. See the Gurobi 13 manual for the full tree-encoding rules.
+    #[cfg(feature = "gurobi13")]
+    pub fn add_genconstr_nl(
+        &mut self,
+        name: &str,
+        resvar: Var,
+        opcode: &[i32],
+        data: &[f64],
+        parent: &[i32],
+    ) -> Result<GenConstr> {
+        if opcode.len() != data.len() || opcode.len() != parent.len() {
+            return Err(Error::AlgebraicError(
+                "opcode, data and parent slices must have the same length".to_string(),
+            ));
+        }
+        let constrname = CString::new(name)?;
+        let resvar_idx = self.get_index_build(&resvar)?;
+
+        self.check_apicall(unsafe {
+            ffi::GRBaddgenconstrNL(
+                self.ptr,
+                constrname.as_ptr(),
+                resvar_idx,
+                opcode.len() as ffi::c_int,
+                opcode.as_ptr(),
+                data.as_ptr(),
+                parent.as_ptr(),
             )
         })?;
 

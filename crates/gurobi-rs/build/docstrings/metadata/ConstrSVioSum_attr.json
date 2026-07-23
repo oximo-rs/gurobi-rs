@@ -1,6 +1,6 @@
 {
   "name": "ConstrSVioSum",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/constrsviosum.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#constrsviosum",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": false

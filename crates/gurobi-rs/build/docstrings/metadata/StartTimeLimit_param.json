@@ -1,0 +1,8 @@
+{
+  "name": "StartTimeLimit",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#starttimelimit",
+  "dtype": "dbl",
+  "default": "Infinity",
+  "min": "0",
+  "max": "Infinity"
+}

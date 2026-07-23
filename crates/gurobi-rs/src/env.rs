@@ -157,6 +157,12 @@ impl Env {
         param.set(self, value)
     }
 
+    /// Reset every parameter on this environment to its default value (Gurobi 13+).
+    #[cfg(feature = "gurobi13")]
+    pub fn reset_params(&mut self) -> Result<()> {
+        self.check_apicall(unsafe { ffi::GRBresetparams(self.as_mut_ptr()) })
+    }
+
     /// Import a set of parameter values from a file
     pub fn read_params(&mut self, filename: &str) -> Result<()> {
         let filename = CString::new(filename)?;

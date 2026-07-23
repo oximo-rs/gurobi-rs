@@ -1,0 +1,7 @@
+{
+  "name": "PoolNConstrVioSum",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#poolnconstrviosum",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

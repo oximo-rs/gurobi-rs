@@ -1,6 +1,6 @@
 {
   "name": "MIPGapAbs",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/mipgapabs.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#mipgapabs",
   "dtype": "dbl",
   "default": "1e-10",
   "min": "0",

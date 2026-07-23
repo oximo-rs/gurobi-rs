@@ -1,6 +1,6 @@
 {
   "name": "IISQConstrForce",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/iisqconstrforce.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintquadratic.html#iisqconstrforce",
   "dtype": "int",
   "otype": "qconstr",
   "modifiable": true

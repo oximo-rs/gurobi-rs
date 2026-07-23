@@ -1,0 +1,8 @@
+{
+  "name": "ThreadLimit",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#threadlimit",
+  "dtype": "int",
+  "default": "0",
+  "min": "0",
+  "max": "1024"
+}

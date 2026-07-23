@@ -1,0 +1,7 @@
+{
+  "name": "BarPi",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintlinear.html#barpi",
+  "dtype": "dbl",
+  "otype": "constr",
+  "modifiable": false
+}

@@ -1,6 +1,6 @@
 {
   "name": "ScenNUB",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/scennub.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiscenario.html#scennub",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": true

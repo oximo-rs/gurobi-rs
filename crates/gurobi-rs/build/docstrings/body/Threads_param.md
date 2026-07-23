@@ -5,15 +5,19 @@ features.
 
 While you will generally get the best performance by using all available cores in your machine, there are a few
 exceptions. One is of course when you are sharing a machine with other jobs. In this case, you should select a thread
-count that doesn't oversubscribe the machine.
+count that doesn’t oversubscribe the machine.
 
 We have also found that certain classes of MIP models benefit from reducing the thread count, often all the way down to
 one thread. Starting multiple threads introduces contention for machine resources. For classes of models where the first
-solution found by the MIP solver is almost always optimal, and that solution isn't found at the root, it is often better
+solution found by the MIP solver is almost always optimal, and that solution isn’t found at the root, it is often better
 to allow a single thread to explore the search tree uncontested.
 
 Another situation where reducing the thread count can be helpful is when memory is tight. Each thread can consume a
 significant amount of memory.
 
-We've made the pragmatic choice to impose a soft limit of 32 threads for the automatic setting (0). If your machine has
-more, and you find that using more increases performance, you should feel free to set the parameter to a larger value.
+We’ve made the pragmatic choice to impose a soft limit of 32 threads for the automatic setting (0), because usually,
+Gurobi’s algorithms do not benefit from higher thread counts. Actually, higher thread counts may even hurt performance,
+because this will often saturate the memory system. If your machine has more virtual processors, and you find that using
+more threads increases performance, you should feel free to set the parameter to a larger value. Alternatively, you can
+use the value -1 to indicate that Gurobi should use all available virtual processors, even if the machine has more than
+32.

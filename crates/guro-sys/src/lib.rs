@@ -1,7 +1,7 @@
 #![allow(non_camel_case_types)]
 #![allow(improper_ctypes)]
 
-pub use std::os::raw::{c_char, c_double, c_int, c_void};
+pub use std::os::raw::{c_char, c_double, c_int, c_uint, c_void};
 pub type c_str = *const c_char;
 
 #[repr(C)]
@@ -239,6 +239,28 @@ unsafe extern "C" {
     );
 
     add_funca_constr!(GRBaddgenconstrExpA, GRBaddgenconstrLogA, GRBaddgenconstrPow);
+
+    /// Add a general nonlinear constraint defined by an expression tree.
+    /// `opcode`, `data`, `parent` are parallel arrays of length `nnodes`.
+    pub fn GRBaddgenconstrNL(
+        model: *mut GRBmodel,
+        name: c_str,
+        resvar: c_int,
+        nnodes: c_int,
+        opcode: *const c_int,
+        data: *const c_double,
+        parent: *const c_int,
+    ) -> c_int;
+
+    pub fn GRBgetgenconstrNL(
+        model: *mut GRBmodel,
+        id: c_int,
+        resvarP: *mut c_int,
+        nnodesP: *mut c_int,
+        opcode: *mut c_int,
+        data: *mut c_double,
+        parent: *mut c_int,
+    ) -> c_int;
 
     pub fn GRBaddqconstr(
         model: *mut GRBmodel,
@@ -828,6 +850,9 @@ unsafe extern "C" {
     pub fn GRBreadparams(env: *mut GRBenv, filename: c_str) -> c_int;
 
     pub fn GRBwriteparams(env: *mut GRBenv, filename: c_str) -> c_int;
+
+    /// Reset all parameters on `env` to their default values.
+    pub fn GRBresetparams(env: *mut GRBenv) -> c_int;
 }
 
 // Monitoring Progress - Logging and Callbacks
@@ -843,6 +868,14 @@ unsafe extern "C" {
     pub fn GRBgetcallbackfunc(
         model: *mut GRBmodel,
         cb: *mut Option<extern "C" fn(*mut GRBmodel, *mut c_void, c_int, *mut c_void) -> c_int>,
+    ) -> c_int;
+
+    /// Like `GRBsetcallbackfunc` but only fires for the `where` flags whose bit is set in `wheres`.
+    pub fn GRBsetcallbackfuncadv(
+        model: *mut GRBmodel,
+        cb: Option<extern "C" fn(*mut GRBmodel, *mut c_void, c_int, *mut c_void) -> c_int>,
+        usrdata: *mut c_void,
+        wheres: c_uint,
     ) -> c_int;
 
     pub fn GRBcbget(cbdata: *mut c_void, where_: c_int, what: c_int, resultP: *mut c_void)

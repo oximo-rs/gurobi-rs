@@ -1,6 +1,6 @@
 {
   "name": "FeasibilityTol",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/feasibilitytol.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#feasibilitytol",
   "dtype": "dbl",
   "default": "1e-6",
   "min": "1e-9",

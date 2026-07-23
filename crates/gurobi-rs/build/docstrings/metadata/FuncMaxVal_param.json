@@ -1,8 +1,8 @@
 {
   "name": "FuncMaxVal",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcmaxval.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#funcmaxval",
   "dtype": "dbl",
   "default": "1e+6",
-  "min": "0",
+  "min": "1e-2",
   "max": "Infinity"
 }

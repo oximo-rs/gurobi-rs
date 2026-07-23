@@ -1,6 +1,6 @@
 {
   "name": "ServerTimeout",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/servertimeout.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#servertimeout",
   "dtype": "int",
   "default": "60",
   "min": "1",

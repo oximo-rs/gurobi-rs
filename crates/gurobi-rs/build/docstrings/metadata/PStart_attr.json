@@ -1,6 +1,6 @@
 {
   "name": "PStart",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/pstart.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/variable.html#pstart",
   "dtype": "dbl",
   "otype": "var",
   "modifiable": true

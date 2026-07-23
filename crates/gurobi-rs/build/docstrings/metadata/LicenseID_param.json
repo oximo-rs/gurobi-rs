@@ -1,6 +1,6 @@
 {
   "name": "LicenseID",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/licenseid.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#licenseid",
   "dtype": "int",
   "default": "0",
   "min": "0",

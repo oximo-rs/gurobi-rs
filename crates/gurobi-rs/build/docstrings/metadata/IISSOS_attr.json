@@ -1,6 +1,6 @@
 {
   "name": "IISSOS",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/iissos.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/sos.html#iissos",
   "dtype": "int",
   "otype": "sos",
   "modifiable": false

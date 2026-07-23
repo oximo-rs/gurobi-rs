@@ -1,6 +1,6 @@
 {
   "name": "FuncNonlinear",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcnonlinear.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintgeneral.html#funcnonlinear",
   "dtype": "int",
   "otype": "gconstr",
   "modifiable": true

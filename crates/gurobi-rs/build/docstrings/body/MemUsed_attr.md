@@ -1,0 +1,1 @@
+Current amount (in GB) of memory allocated by the environment in which the model lives.

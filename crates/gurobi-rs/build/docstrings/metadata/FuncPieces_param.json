@@ -1,8 +1,8 @@
 {
   "name": "FuncPieces",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcpieces2.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#funcpieces",
   "dtype": "int",
   "default": "0",
   "min": "-2",
-  "max": "MAXINT"
+  "max": "2e+8"
 }

@@ -20,4 +20,6 @@ anyhow = { workspace = true, optional = true }
 # Gurobi 12 renamed the env-creation functions and added version arguments.
 # Enable this for Gurobi >= 12; leave off for Gurobi 10/11.
 gurobi12 = []
+# Gurobi 13 shares the same env-creation ABI as 12, so it implies `gurobi12`.
+gurobi13 = ["gurobi12"]
 build_script_tests = ["anyhow"]

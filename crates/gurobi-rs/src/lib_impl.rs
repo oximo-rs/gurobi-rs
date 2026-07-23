@@ -151,9 +151,11 @@ pub use parameter::param;
 #[path = "constants.rs"]
 pub(crate) mod constants;
 pub use constants::{
-    ConstrSense, GenConstrType, ModelSense, RelaxType, SOSType, Status, VarType,
+    ConstrSense, GenConstrType, ModelSense, Opcode, RelaxType, SOSType, Status, VarType,
     GRB_INFINITY as INFINITY,
 };
+#[cfg(feature = "gurobi13")]
+pub use constants::GRB_METHOD_PDHG;
 
 #[path = "env.rs"]
 mod env;

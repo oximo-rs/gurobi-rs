@@ -1,6 +1,6 @@
 {
   "name": "CSGroup",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/csgroup.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#csgroup",
   "dtype": "str",
   "default": "\"\""
 }

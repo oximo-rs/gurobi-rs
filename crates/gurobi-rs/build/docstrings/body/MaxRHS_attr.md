@@ -1,1 +1,1 @@
-Maximum (finite) linear constraint right-hand side value (in absolute value).
+Maximum linear constraint right-hand side value (in absolute value).

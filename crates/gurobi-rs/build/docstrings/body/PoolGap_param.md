@@ -3,4 +3,4 @@ value, solutions whose objective values exceed that of the best known solution b
 are discarded. For example, if the MIP solver has found a solution at objective 100, then a setting of PoolGap=0.2 would
 discard solutions with objective worse than 120 (assuming a minimization objective).
 
-Note: Only affects mixed integer programming (MIP) models
+Only affects mixed integer programming (MIP) models

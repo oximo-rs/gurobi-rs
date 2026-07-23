@@ -1,0 +1,7 @@
+{
+  "name": "PDHGIterCount",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#pdhgitercount",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

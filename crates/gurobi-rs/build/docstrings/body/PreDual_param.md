@@ -3,4 +3,4 @@ dual can reduce overall solution time. The default setting uses a heuristic to d
 forming the dual, while setting 1 forces it to take the dual. Setting 2 employs a more expensive heuristic that forms
 both the presolved primal and dual models (on two threads), and heuristically chooses one of them.
 
-Note: LP only
+Mainly affects LP, QP, and QCP models, but it is also used for the initial root relaxation of mixed integer programs.

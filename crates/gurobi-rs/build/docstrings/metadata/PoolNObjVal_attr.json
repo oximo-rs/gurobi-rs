@@ -1,0 +1,7 @@
+{
+  "name": "PoolNObjVal",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#poolnobjval",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

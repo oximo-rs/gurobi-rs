@@ -1,0 +1,7 @@
+{
+  "name": "BarStatus",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#barstatus",
+  "dtype": "int",
+  "otype": "model",
+  "modifiable": false
+}

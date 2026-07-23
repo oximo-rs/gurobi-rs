@@ -16,13 +16,14 @@ exclude = ["/tests"]
 
 [features]
 default = []
+gurobi13 = ["guro-sys", "guro-sys/gurobi13"]
 gurobi12 = ["guro-sys", "guro-sys/gurobi12"]
 gurobi11 = ["guro-sys"]
 gurobi10 = ["guro-sys"]
 
 
 [package.metadata.docs.rs]
-features = ["gurobi12"]
+features = ["gurobi13"]
 rustdoc-args = ["--html-in-header", "doc/katex-header.html"]
 
 [dependencies]

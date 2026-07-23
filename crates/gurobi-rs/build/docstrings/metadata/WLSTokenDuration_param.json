@@ -1,6 +1,6 @@
 {
   "name": "WLSTokenDuration",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/wlstokenduration.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#wlstokenduration",
   "dtype": "int",
   "default": "0",
   "min": "0",

@@ -1,6 +1,6 @@
 {
   "name": "QCPi",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/qcpi.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintquadratic.html#qcpi",
   "dtype": "dbl",
   "otype": "qconstr",
   "modifiable": false

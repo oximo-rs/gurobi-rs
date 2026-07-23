@@ -1,6 +1,6 @@
 {
   "name": "SAObjUp",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/saobjup.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/variable.html#saobjup",
   "dtype": "dbl",
   "otype": "var",
   "modifiable": false

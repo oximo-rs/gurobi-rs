@@ -1,6 +1,6 @@
 {
   "name": "SALBUp",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/salbup.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/variable.html#salbup",
   "dtype": "dbl",
   "otype": "var",
   "modifiable": false

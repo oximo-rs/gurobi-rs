@@ -1,6 +1,6 @@
 {
   "name": "SAObjLow",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/saobjlow.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/variable.html#saobjlow",
   "dtype": "dbl",
   "otype": "var",
   "modifiable": false

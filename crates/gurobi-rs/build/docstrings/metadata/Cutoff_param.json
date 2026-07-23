@@ -1,6 +1,6 @@
 {
   "name": "Cutoff",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/cutoff.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#cutoff",
   "dtype": "dbl",
   "default": "Infinity for minimization, -Infinity for maximization",
   "min": "-Infinity",

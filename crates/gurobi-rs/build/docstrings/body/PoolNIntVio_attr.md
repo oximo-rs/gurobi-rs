@@ -1,0 +1,7 @@
+A MIP solver won’t always assign strictly integral values to integer variables. This attribute returns the largest
+distance between the computed value of any integer variable and the nearest integer in a sub-optimal MIP solution. Use
+parameter SolutionNumber to indicate which alternate solution to retrieve.
+
+Please consult the section on Solution Pools for a more detailed discussion of this topic.
+
+Only available for MIP models.

@@ -1,0 +1,7 @@
+{
+  "name": "PoolNIntVioIndex",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#poolnintvioindex",
+  "dtype": "int",
+  "otype": "model",
+  "modifiable": false
+}

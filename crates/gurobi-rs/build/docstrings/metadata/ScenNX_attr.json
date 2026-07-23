@@ -1,6 +1,6 @@
 {
   "name": "ScenNX",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/scennx.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiscenario.html#scennx",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": false

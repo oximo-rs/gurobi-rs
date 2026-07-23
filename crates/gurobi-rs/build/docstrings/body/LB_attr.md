@@ -1,1 +1,1 @@
-Variable lower bound. Note that any value less than -1e20 is treated as negative infinity.
+Variable lower bound. Note that any value less than or equal to -1e20 is treated as negative infinity.

@@ -235,14 +235,22 @@ pub enum Status {
     /// User specified an objective limit (a bound on either the best objective or the best bound), and that
     /// limit has been reached.
     UserObjLimit,
+    /// (Gurobi 13+) A feasible solution was found at a local optimum by the nonlinear barrier solver.
+    #[cfg(feature = "gurobi13")]
+    LocallyOptimal,
+    /// (Gurobi 13+) The subproblem was proven locally infeasible by the nonlinear barrier solver.
+    #[cfg(feature = "gurobi13")]
+    LocallyInfeasible,
 }
 
 impl TryFrom<i32> for Status {
     type Error = String;
     fn try_from(val: i32) -> std::result::Result<Status, String> {
-        match val {
-            1..=15 => Ok(unsafe { std::mem::transmute::<i32, Status>(val) }),
-            _ => Err("Invalid Status value, should be in [1,15]".to_string()),
+        let max = if cfg!(feature = "gurobi13") { 17 } else { 15 };
+        if (1..=max).contains(&val) {
+            Ok(unsafe { std::mem::transmute::<i32, Status>(val) })
+        } else {
+            Err(format!("Invalid Status value, should be in [1,{max}]"))
         }
     }
 }
@@ -354,6 +362,39 @@ impl TryFrom<i32> for GenConstrType {
             _ => Err("Invalid GenConstrType value, should be in [1,18]".to_string()),
         }
     }
+}
+
+/// Value for the `Method` parameter selecting the Primal-Dual Hybrid Gradient solver (Gurobi 13+).
+#[cfg(feature = "gurobi13")]
+pub const GRB_METHOD_PDHG: i32 = 6;
+
+/// Nonlinear operation codes used to build the expression tree consumed by
+/// [`Model::add_genconstr_nl`](`crate::Model::add_genconstr_nl`).
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[allow(missing_docs)]
+pub enum Opcode {
+    Constant = 0,
+    Variable = 1,
+    Plus = 2,
+    Minus = 3,
+    Multiply = 4,
+    Divide = 5,
+    Uminus = 6,
+    Square = 7,
+    Sqrt = 8,
+    Sin = 9,
+    Cos = 10,
+    Tan = 11,
+    Pow = 12,
+    Exp = 13,
+    Log = 14,
+    Log2 = 15,
+    Log10 = 16,
+    Logistic = 17,
+    Tanh = 18,
+    #[cfg(feature = "gurobi13")]
+    SignPow = 19,
 }
 
 /// Norm of the vector to use in [`Model::add_genconstr_norm`](`crate::Model::add_genconstr_norm`)

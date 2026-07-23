@@ -3,5 +3,5 @@ for more than the specified amount of time, the client will quit with a network 
 
 Refer to the Gurobi Remote Services Reference Manual for more information on starting Compute Server jobs.
 
-You must set this parameter using an empty environment. Changing the parameter after your environment has been created
+You must set this parameter using an empty environment . Changing the parameter after your environment has been created
 will have no effect.

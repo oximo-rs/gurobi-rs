@@ -3,4 +3,4 @@ solves a node relaxation for a MIP model. Setting the parameter to 0 turns it of
 homogeneous algorithm is useful for recognizing infeasibility or unboundedness. It is a bit slower than the default
 algorithm.
 
-Note: Barrier only
+Barrier only

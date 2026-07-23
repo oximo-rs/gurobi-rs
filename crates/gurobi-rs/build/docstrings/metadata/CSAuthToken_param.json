@@ -1,6 +1,6 @@
 {
   "name": "CSAuthToken",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/csauthtoken.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#csauthtoken",
   "dtype": "str",
   "default": "\"\""
 }

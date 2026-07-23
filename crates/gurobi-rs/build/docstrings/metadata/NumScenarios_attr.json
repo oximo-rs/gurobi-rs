@@ -1,6 +1,6 @@
 {
   "name": "NumScenarios",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/numscenarios.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiscenario.html#numscenarios",
   "dtype": "int",
   "otype": "model",
   "modifiable": true

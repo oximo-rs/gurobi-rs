@@ -1,6 +1,6 @@
 {
   "name": "PartitionPlace",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/partitionplace.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#partitionplace",
   "dtype": "int",
   "default": "15",
   "min": "0",

@@ -1,6 +1,6 @@
 {
   "name": "FeasRelaxBigM",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/feasrelaxbigm.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#feasrelaxbigm",
   "dtype": "dbl",
   "default": "1e6",
   "min": "0",

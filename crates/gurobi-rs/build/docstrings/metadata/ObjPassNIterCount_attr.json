@@ -1,0 +1,7 @@
+{
+  "name": "ObjPassNIterCount",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#objpassnitercount",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

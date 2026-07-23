@@ -1,6 +1,6 @@
 {
   "name": "ZeroHalfCuts",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/zerohalfcuts.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#zerohalfcuts",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

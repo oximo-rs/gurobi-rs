@@ -1,6 +1,6 @@
 {
   "name": "GenConstrName",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/genconstrname.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintgeneral.html#genconstrname",
   "dtype": "str",
   "otype": "gconstr",
   "modifiable": true

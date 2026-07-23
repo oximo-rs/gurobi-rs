@@ -7,7 +7,7 @@ the Gurobi Instant Cloud, where the default setting will automatically impose a 
 seconds). If you are using an Instant Cloud pool, the actual value will be the maximum between this parameter value and
 the idle timeout defined by the pool.
 
-You must set this parameter through either a gurobi.lic file (using IDLETIMEOUT=n) or an empty environment. Changing the
-parameter after your environment has been created will have no effect.
+You must set this parameter through either a gurobi.lic file (using IDLETIMEOUT=n ) or an empty environment . Changing
+the parameter after your environment has been created will have no effect.
 
 Refer to the Gurobi Remote Services Reference Manual for more information on starting Compute Server jobs.

@@ -1,1 +1,1 @@
-Variable upper bound. Note that any value greater than 1e20 is treated as infinite.
+Variable upper bound. Note that any value greater than or equal to 1e20 is treated as infinite.

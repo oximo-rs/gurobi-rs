@@ -1,0 +1,8 @@
+{
+  "name": "PDHGRelTol",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#pdhgreltol",
+  "dtype": "dbl",
+  "default": "1e-6",
+  "min": "0",
+  "max": "Infinity"
+}

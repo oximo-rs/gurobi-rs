@@ -1,0 +1,2 @@
+When using a WLS On Demand license, this parameter can be used to specify which configuration to use. If not specified,
+the configuration used will be the default configuration specified for that license.

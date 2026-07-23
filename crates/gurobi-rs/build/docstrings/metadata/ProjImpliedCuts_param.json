@@ -1,6 +1,6 @@
 {
   "name": "ProjImpliedCuts",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/projimpliedcuts.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#projimpliedcuts",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

@@ -1,6 +1,6 @@
 {
   "name": "TuneResultCount",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/tuneresultcount.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#tuneresultcount",
   "dtype": "int",
   "otype": "model",
   "modifiable": false

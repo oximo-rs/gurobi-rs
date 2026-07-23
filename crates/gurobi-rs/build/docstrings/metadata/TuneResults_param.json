@@ -1,6 +1,6 @@
 {
   "name": "TuneResults",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/tuneresults.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#tuneresults",
   "dtype": "int",
   "default": "-1",
   "min": "-2",

@@ -1,0 +1,7 @@
+{
+  "name": "ObjPassNMipGap",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#objpassnmipgap",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

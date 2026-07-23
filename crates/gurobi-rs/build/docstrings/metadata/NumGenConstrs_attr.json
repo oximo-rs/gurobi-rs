@@ -1,6 +1,6 @@
 {
   "name": "NumGenConstrs",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/numgenconstrs.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#numgenconstrs",
   "dtype": "int",
   "otype": "model",
   "modifiable": false

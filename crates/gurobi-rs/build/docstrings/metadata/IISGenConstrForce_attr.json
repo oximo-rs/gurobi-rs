@@ -1,6 +1,6 @@
 {
   "name": "IISGenConstrForce",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/iisgenconstrforce.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintgeneral.html#iisgenconstrforce",
   "dtype": "int",
   "otype": "gconstr",
   "modifiable": true

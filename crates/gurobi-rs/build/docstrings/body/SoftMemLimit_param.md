@@ -1,5 +1,5 @@
-Limits the total amount of memory (in GB, i.e., $10^9$ bytes) available to Gurobi. If more is needed, Gurobi will
-terminate with a MEM_LIMIT status code (see the Status Code section for further details).
+Limits the total amount of memory (in GB, i.e., \(10^9\) bytes) available to Gurobi. If more is needed, Gurobi will
+terminate with a MEM_LIMIT status code.
 
 In contrast to the `MemLimit` parameter, the `SoftMemLimit` parameter leads to a graceful exit of the optimization, such
 that it is possible to retrieve solution information afterwards or (in the case of a MIP solve) resume the optimization.

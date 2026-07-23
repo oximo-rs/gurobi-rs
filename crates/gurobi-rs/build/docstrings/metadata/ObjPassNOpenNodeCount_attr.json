@@ -1,0 +1,7 @@
+{
+  "name": "ObjPassNOpenNodeCount",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#objpassnopennodecount",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

@@ -1,1 +1,2 @@
-The number of integer variables in the model. This includes both binary variables and general integer variables.
+The number of variables in the model that are fully or partially discrete. This includes binary, integer, semi-
+continuous, and semi-integer variables.

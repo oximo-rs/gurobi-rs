@@ -1,0 +1,6 @@
+{
+  "name": "WLSConfig",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#wlsconfig",
+  "dtype": "str",
+  "default": "\"\""
+}

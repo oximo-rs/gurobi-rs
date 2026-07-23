@@ -4,7 +4,7 @@ signaling of the time out.
 
 Any negative value will allow a job to sit in the Compute Server queue indefinitely.
 
-You must set this parameter through a gurobi.lic file (using QUEUETIMEOUT=n) or an empty environment. Changing the
+You must set this parameter through a gurobi.lic file (using QUEUETIMEOUT=n ) or an empty environment . Changing the
 parameter after your environment has been created will have no effect.
 
 Refer to the Gurobi Remote Services Reference Manual for more information on starting Compute Server jobs.

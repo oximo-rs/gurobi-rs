@@ -1,6 +1,6 @@
 {
   "name": "IterationLimit",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/iterationlimit.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#iterationlimit",
   "dtype": "dbl",
   "default": "Infinity",
   "min": "0",

@@ -178,7 +178,9 @@ where
     P: Fn(&csv::StringRecord) -> anyhow::Result<T>,
 {
     // Build the CSV reader and iterate over each record.
-    let mut rdr = csv::Reader::from_path(filename)?;
+    let mut rdr = csv::ReaderBuilder::new()
+        .flexible(true)
+        .from_path(filename)?;
     let mut values = Vec::new();
     for result in rdr.records() {
         let row = result?;
@@ -207,18 +209,50 @@ pub fn docstring_filepath(name: &str) -> String {
         .unwrap()
 }
 
-type ParameterEnums = HashMap<Ident, (DataType, Vec<String>)>;
-type AttributeEnums = HashMap<Ident, (ObjType, DataType, Vec<String>)>;
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+enum Availability {
+    All,
+    Gurobi13,
+}
+
+impl Availability {
+    fn parse(value: Option<&str>) -> anyhow::Result<Self> {
+        match value.unwrap_or_default() {
+            "" => Ok(Self::All),
+            "gurobi13" => Ok(Self::Gurobi13),
+            value => anyhow::bail!("unsupported feature requirement {value:?}"),
+        }
+    }
+
+    fn cfg_attr(self) -> TokenStream {
+        match self {
+            Self::All => TokenStream::new(),
+            Self::Gurobi13 => quote!(#[cfg(feature = "gurobi13")]),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct EnumMember {
+    name: String,
+    availability: Availability,
+}
+
+type ParameterEnums = HashMap<Ident, (DataType, Vec<EnumMember>)>;
+type AttributeEnums = HashMap<Ident, (ObjType, DataType, Vec<EnumMember>)>;
 
 mod param {
     use super::*;
-    pub(crate) fn parse_csv_row(row: &csv::StringRecord) -> anyhow::Result<(DataType, String)> {
-        if row.len() != 2 {
-            anyhow::bail!("row should have 2 fields");
+    pub(crate) fn parse_csv_row(
+        row: &csv::StringRecord,
+    ) -> anyhow::Result<(DataType, String, Availability)> {
+        if !(2..=3).contains(&row.len()) {
+            anyhow::bail!("row should have 2 or 3 fields");
         }
         let dtype: DataType = row[1].parse()?;
         let name = row[0].to_string();
-        Ok((dtype, name))
+        let availability = Availability::parse(row.get(2))?;
+        Ok((dtype, name, availability))
     }
 
     fn get_metadata(name: &str) -> anyhow::Result<ParameterMeta> {
@@ -254,17 +288,23 @@ mod param {
         }
     }
 
-    fn gen_variant(name: &str) -> TokenStream {
-        let ident = str_to_ident(name);
-        let docstring = build_docstring(name).unwrap();
+    fn gen_variant(member: &EnumMember) -> TokenStream {
+        let ident = str_to_ident(&member.name);
+        let docstring = build_docstring(&member.name).unwrap();
+        let cfg = member.availability.cfg_attr();
         quote! {
+          #cfg
           #[doc=#docstring]
           #ident
         }
     }
 
-    fn gen_type(ts: &mut TokenStream, ident: &Ident, members: &[String]) -> anyhow::Result<()> {
-        let members = members.iter().map(|s| gen_variant(&*s));
+    fn gen_type(
+        ts: &mut TokenStream,
+        ident: &Ident,
+        members: &[EnumMember],
+    ) -> anyhow::Result<()> {
+        let members = members.iter().map(gen_variant);
 
         let decl = quote! {
           #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, FromCStr, AsCStr)]
@@ -311,22 +351,23 @@ mod param {
     }
 
     pub(crate) fn group_into_enums(
-        attrs: impl IntoIterator<Item = (DataType, String)>,
+        attrs: impl IntoIterator<Item = (DataType, String, Availability)>,
     ) -> ParameterEnums {
         let mut map = ParameterEnums::new();
-        for (dt, name) in attrs {
+        for (dt, name, availability) in attrs {
             let ident = dt
                 .ident_fragment()
                 .map(|dt| format_ident!("{}Param", dt))
                 .expect("not implemented");
+            let member = EnumMember { name, availability };
 
             match map.entry(ident) {
                 Entry::Occupied(mut e) => {
                     let (_, members) = e.get_mut();
-                    members.push(name);
+                    members.push(member);
                 }
                 Entry::Vacant(e) => {
-                    e.insert((dt, vec![name]));
+                    e.insert((dt, vec![member]));
                 }
             }
         }
@@ -338,14 +379,15 @@ mod attrs {
     use super::*;
     pub(crate) fn parse_csv_row(
         row: &csv::StringRecord,
-    ) -> anyhow::Result<(ObjType, DataType, String)> {
-        if row.len() != 3 {
-            anyhow::bail!("row should have 3 fields");
+    ) -> anyhow::Result<(ObjType, DataType, String, Availability)> {
+        if !(3..=4).contains(&row.len()) {
+            anyhow::bail!("row should have 3 or 4 fields");
         }
         let obj: ObjType = row[2].parse()?;
         let dtype: DataType = row[1].parse()?;
         let name = row[0].to_string();
-        Ok((obj, dtype, name))
+        let availability = Availability::parse(row.get(3))?;
+        Ok((obj, dtype, name, availability))
     }
 
     fn get_metadata(name: &str) -> anyhow::Result<AttributeMeta> {
@@ -373,16 +415,18 @@ mod attrs {
             writeln!(docstring, "[Reference manual]({}).", &meta.url)?;
             Ok(docstring)
         } else {
-            body?;
+            // body?;
             let fallback = std::fs::read_to_string("build/docstrings/missing.md")?;
             Ok(fallback)
         }
     }
 
-    fn gen_variant(name: &str) -> TokenStream {
-        let ident = str_to_ident(name);
-        let docstring = build_docstring(name).unwrap();
+    fn gen_variant(member: &EnumMember) -> TokenStream {
+        let ident = str_to_ident(&member.name);
+        let docstring = build_docstring(&member.name).unwrap();
+        let cfg = member.availability.cfg_attr();
         quote! {
+          #cfg
           #[doc=#docstring]
           #ident
         }
@@ -409,9 +453,9 @@ mod attrs {
         ident: &Ident,
         d: DataType,
         o: ObjType,
-        members: &[String],
+        members: &[EnumMember],
     ) -> anyhow::Result<()> {
-        let variants = members.iter().map(|s| gen_variant(&*s));
+        let variants = members.iter().map(gen_variant);
         ts.extend(quote! {
           #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, FromCStr, AsCStr)]
           pub enum #ident {
@@ -467,22 +511,23 @@ mod attrs {
     }
 
     pub(crate) fn group_into_enums(
-        attrs: impl IntoIterator<Item = (ObjType, DataType, String)>,
+        attrs: impl IntoIterator<Item = (ObjType, DataType, String, Availability)>,
     ) -> AttributeEnums {
         let mut map = AttributeEnums::new();
-        for (ot, dt, name) in attrs {
+        for (ot, dt, name, availability) in attrs {
             let ident = dt.ident_fragment().map_or_else(
                 || format_ident!("{}{}Attr", ot.obj_ident(), &name),
                 |dt| format_ident!("{}{}Attr", ot.obj_ident(), dt),
             );
+            let member = EnumMember { name, availability };
 
             match map.entry(ident) {
                 Entry::Occupied(mut e) => {
                     let (_, _, members) = e.get_mut();
-                    members.push(name);
+                    members.push(member);
                 }
                 Entry::Vacant(e) => {
-                    e.insert((ot, dt, vec![name]));
+                    e.insert((ot, dt, vec![member]));
                 }
             }
         }

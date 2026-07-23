@@ -1,6 +1,6 @@
 Controls the automatic reformulation of SOS1 constraints. Such constraints can be handled directly by the MIP branch-
 and-cut algorithm, but they are often handled more efficiently by reformulating them using binary or integer variables.
-There are several diffent ways to perform this reformulation; they differ in their size and strength. Smaller
+There are several different ways to perform this reformulation; they differ in their size and strength. Smaller
 reformulations add fewer variables and constraints to the model. Stronger reformulations reduce the number of branch-
 and-cut nodes required to solve the resulting model.
 
@@ -12,7 +12,7 @@ required to solve harder problems.
 Options 2 and 3 of this parameter encode the SOS1 using a formulation of logarithmic size. They both only apply when all
 the variables in the SOS1 are non-negative. Option 3 additionally requires that the sum of the variables in the SOS1 is
 equal to 1. Logarithmic formulations are often advantageous when the SOS1 constraint has a large number of members.
-Option 2 focuses on a formulation whose LP relaxation is easier to solve, while option 3 has better branching behaviour.
+Option 2 focuses on a formulation whose LP relaxation is easier to solve, while option 3 has better branching behavior.
 
 The default value of -1 chooses a reformulation for each SOS1 constraint automatically.
 

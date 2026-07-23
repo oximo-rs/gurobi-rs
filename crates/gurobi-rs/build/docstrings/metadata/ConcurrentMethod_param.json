@@ -1,6 +1,6 @@
 {
   "name": "ConcurrentMethod",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/concurrentmethod.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#concurrentmethod",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

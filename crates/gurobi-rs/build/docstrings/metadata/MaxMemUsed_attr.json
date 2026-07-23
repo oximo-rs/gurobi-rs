@@ -1,0 +1,7 @@
+{
+  "name": "MaxMemUsed",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#maxmemused",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

@@ -1,6 +1,6 @@
 {
   "name": "ConstrSVioIndex",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/constrsvioindex.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#constrsvioindex",
   "dtype": "int",
   "otype": "model",
   "modifiable": false

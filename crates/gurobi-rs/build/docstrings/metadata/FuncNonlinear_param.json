@@ -1,8 +1,8 @@
 {
   "name": "FuncNonlinear",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcnonlinear2.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#funcnonlinear",
   "dtype": "int",
-  "default": "0",
+  "default": "1",
   "min": "0",
   "max": "1"
 }

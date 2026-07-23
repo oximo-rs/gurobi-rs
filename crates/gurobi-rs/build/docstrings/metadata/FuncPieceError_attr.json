@@ -1,6 +1,6 @@
 {
   "name": "FuncPieceError",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcpieceerror.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintgeneral.html#funcpieceerror",
   "dtype": "dbl",
   "otype": "gconstr",
   "modifiable": true

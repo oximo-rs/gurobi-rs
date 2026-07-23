@@ -1,0 +1,8 @@
+{
+  "name": "NLBarIterLimit",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#nlbariterlimit",
+  "dtype": "int",
+  "default": "1000",
+  "min": "0",
+  "max": "MAXINT"
+}

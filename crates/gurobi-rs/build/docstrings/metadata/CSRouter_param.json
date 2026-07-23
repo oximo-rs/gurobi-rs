@@ -1,6 +1,6 @@
 {
   "name": "CSRouter",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/csrouter.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#csrouter",
   "dtype": "str",
   "default": "\"\""
 }

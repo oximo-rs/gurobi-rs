@@ -4,7 +4,7 @@ model into MISOCP form; quadratic constraints are transformed into second-order 
 transforms the model into disaggregated MISOCP form; quadratic constraints are transformed into rotated cone
 constraints, where each rotated cone contains two terms and involves only three variables.
 
-The default setting (-1) choose automatically. The automatic setting works well, but there are cases where forcing a
+The default setting (-1) chooses automatically. The automatic setting works well, but there are cases where forcing a
 different form can be beneficial.
 
-Note: Only affects MIQCP models
+Only affects MIQCP models

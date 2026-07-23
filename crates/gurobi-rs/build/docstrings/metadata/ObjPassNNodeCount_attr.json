@@ -1,0 +1,7 @@
+{
+  "name": "ObjPassNNodeCount",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#objpassnnodecount",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

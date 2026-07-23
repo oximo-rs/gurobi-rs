@@ -6,5 +6,5 @@ cause the server to crash.
 
 Refer to the Gurobi Remote Services Reference Manual for more information on starting Compute Server jobs.
 
-You must set this parameter through either a gurobi.lic file (using PRIORITY=n) or an empty environment. Changing the
+You must set this parameter through either a gurobi.lic file (using PRIORITY=n ) or an empty environment . Changing the
 parameter after your environment has been created will have no effect.

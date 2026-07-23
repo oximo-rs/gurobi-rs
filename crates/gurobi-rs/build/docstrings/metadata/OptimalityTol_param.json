@@ -1,6 +1,6 @@
 {
   "name": "OptimalityTol",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/optimalitytol.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#optimalitytol",
   "dtype": "dbl",
   "default": "1e-6",
   "min": "1e-9",

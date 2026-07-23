@@ -1,2 +1,2 @@
-Optimization sense. The default 1 value indicates that the objective is to minimize the objective. Setting this
+Optimization sense. The default value of 1 indicates that the objective function is to be minimized. Setting this
 attribute to -1 changes the sense to maximization.

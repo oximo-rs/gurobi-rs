@@ -4,4 +4,4 @@ Maximum Infeasibility Branching (2), and Strong Branching (3).
 
 Changing the value of this parameter rarely produces a significant benefit.
 
-Note: Only affects mixed integer programming (MIP) models
+Only affects mixed integer programming (MIP) models

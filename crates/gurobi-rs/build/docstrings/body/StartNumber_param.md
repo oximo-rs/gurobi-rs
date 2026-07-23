@@ -3,7 +3,7 @@ Start attribute) the `StartNumber` parameter will determine which MIP start is a
 parameter should be less than the value of the NumStart attribute (which captures the number of MIP starts in the
 model).
 
-The special value -1 is meant to append new MIP start to a model, but querying a MIP start when `StartNumber` is -1 will
-result in an error.
+The special value -1 is meant to append a new MIP start to a model, but querying a MIP start when `StartNumber` is -1
+will result in an error.
 
-Note: Only affects mixed integer programming (MIP) models
+Only affects mixed integer programming (MIP) models

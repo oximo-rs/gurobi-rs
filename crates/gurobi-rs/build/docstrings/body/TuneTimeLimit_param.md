@@ -1,1 +1,1 @@
-Limits total tuning runtime (in seconds). The default setting (-1) chooses a time limit automatically.
+Limits total tuning runtime (in seconds). The default value is 86400 seconds, i.e., 24 hours.

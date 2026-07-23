@@ -3,4 +3,4 @@ Overrides the `Cuts` parameter.
 
 Changing the value of this parameter rarely produces a significant benefit.
 
-Note: Only affects mixed integer programming (MIP) models
+Only affects mixed integer programming (MIP) models

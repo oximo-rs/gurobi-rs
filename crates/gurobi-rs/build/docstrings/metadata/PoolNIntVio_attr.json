@@ -1,0 +1,7 @@
+{
+  "name": "PoolNIntVio",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#poolnintvio",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

@@ -6,4 +6,4 @@ The distributed MIP solver produces a slightly different log from the standard M
 callbacks as well. Please refer to the Distributed Algorithms section of the Gurobi Remote Services Reference Manual for
 additional details.
 
-Note: Only affects mixed integer programming (MIP) models
+Only affects mixed integer programming (MIP) models

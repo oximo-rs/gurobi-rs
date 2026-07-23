@@ -1,6 +1,6 @@
 {
   "name": "Slack",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/slack.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintlinear.html#slack",
   "dtype": "dbl",
   "otype": "constr",
   "modifiable": false

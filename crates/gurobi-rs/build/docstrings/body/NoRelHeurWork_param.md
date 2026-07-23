@@ -6,4 +6,4 @@ The work metric used in this parameter is tough to define precisely. A single un
 this will depend on the machine, the core count, and in some cases the model. You may need to experiment to find a good
 setting for your model.
 
-Note: Only affects MIP models
+Only affects mixed integer programming (MIP) models

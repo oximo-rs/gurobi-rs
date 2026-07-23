@@ -1,6 +1,6 @@
 {
   "name": "BarOrder",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/barorder.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#barorder",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

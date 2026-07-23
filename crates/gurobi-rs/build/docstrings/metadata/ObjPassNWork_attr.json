@@ -1,0 +1,7 @@
+{
+  "name": "ObjPassNWork",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#objpassnwork",
+  "dtype": "dbl",
+  "otype": "model",
+  "modifiable": false
+}

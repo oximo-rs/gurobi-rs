@@ -1,0 +1,8 @@
+{
+  "name": "DualImpliedCuts",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#dualimpliedcuts",
+  "dtype": "int",
+  "default": "-1",
+  "min": "-1",
+  "max": "2"
+}

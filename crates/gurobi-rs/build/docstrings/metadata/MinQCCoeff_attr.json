@@ -1,6 +1,6 @@
 {
   "name": "MinQCCoeff",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/minqccoeff.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#minqccoeff",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": false

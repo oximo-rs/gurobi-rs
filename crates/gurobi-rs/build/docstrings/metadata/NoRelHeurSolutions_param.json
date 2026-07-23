@@ -1,0 +1,8 @@
+{
+  "name": "NoRelHeurSolutions",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#norelheursolutions",
+  "dtype": "int",
+  "default": "0",
+  "min": "0",
+  "max": "MAXINT"
+}

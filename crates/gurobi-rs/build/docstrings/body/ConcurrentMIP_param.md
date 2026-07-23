@@ -1,4 +1,4 @@
-This parameter enables the concurrent MIP solver. When the parameter is set to value n, the MIP solver performs n
+This parameter enables the concurrent MIP solver. When the parameter is set to value n , the MIP solver performs n
 independent MIP solves in parallel, with different parameter settings for each. Optimization terminates when the first
 solve completes.
 
@@ -18,4 +18,4 @@ callbacks as well. Please refer to the concurrent optimizer discussion for addit
 Concurrent MIP is not deterministic. If runtimes for different independent solves are very similar, and if the model has
 multiple optimal solutions, you may get slightly different results from multiple runs on the same model.
 
-Note: Only affects mixed integer programming (MIP) models
+Only affects mixed integer programming (MIP) models

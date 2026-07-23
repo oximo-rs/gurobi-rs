@@ -1,1 +1,1 @@
-Maximum of all (unscaled) violations that apply to model type.
+Maximum of all (unscaled) violations that apply to the model type.

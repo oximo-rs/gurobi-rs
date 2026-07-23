@@ -3,14 +3,14 @@ variables and constraints immediately for building or modifying the model. A set
 before these can be used.
 
 Since the vast majority of programs never query Gurobi for details about the optimization models they build, the default
-setting typically removes the need to call update, or even be aware of the details of our lazy update approach for
+setting typically removes the need to call update , or even be aware of the details of our lazy update approach for
 handling model modifications. However, these details will show through when you try to query modified model information.
 
 In the Gurobi interface, model modifications (bound changes, right-hand side changes, objective changes, etc.) are
-placed in a queue. These queued modifications are applied to the model at three times: when you call update, when you
-call optimize, or when you call write to write the model to disk. When you query information about the model, the result
-will depend on both whether that information was modified and when it was modified. In particular, no matter what
-setting of `UpdateMode` you use, if the modification is sitting in the queue, you'll get the result from before the
+placed in a queue. These queued modifications are applied to the model at three times: when you call update , when you
+call optimize , or when you call write to write the model to disk. When you query information about the model, the
+result will depend on both whether that information was modified and when it was modified. In particular, no matter what
+setting of `UpdateMode` you use, if the modification is sitting in the queue, you’ll get the result from before the
 modification.
 
 To expand on this a bit, all attribute modifications are actually placed in a queue. This includes attributes that may

@@ -1,6 +1,6 @@
 {
   "name": "CSClientLog",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/csclientlog.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#csclientlog",
   "dtype": "int",
   "default": "0",
   "min": "0",

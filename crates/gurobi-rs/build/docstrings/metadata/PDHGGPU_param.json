@@ -1,0 +1,8 @@
+{
+  "name": "PDHGGPU",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#pdhggpu",
+  "dtype": "int",
+  "default": "0",
+  "min": "0",
+  "max": "1"
+}

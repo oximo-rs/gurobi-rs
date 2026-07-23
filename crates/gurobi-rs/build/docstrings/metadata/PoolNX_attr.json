@@ -1,0 +1,7 @@
+{
+  "name": "PoolNX",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/variable.html#poolnx",
+  "dtype": "dbl",
+  "otype": "var",
+  "modifiable": false
+}

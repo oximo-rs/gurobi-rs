@@ -5,4 +5,4 @@ expensive.
 Note that this parameter will introduce non-determinism - different runs may take different paths. Use the
 `NoRelHeurWork` parameter for deterministic results.
 
-Note: Only affects MIP models
+Only affects mixed integer programming (MIP) models

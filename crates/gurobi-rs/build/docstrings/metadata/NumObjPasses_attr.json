@@ -1,0 +1,7 @@
+{
+  "name": "NumObjPasses",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiobjective.html#numobjpasses",
+  "dtype": "int",
+  "otype": "model",
+  "modifiable": false
+}

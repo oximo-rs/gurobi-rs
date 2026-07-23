@@ -1,6 +1,6 @@
 {
   "name": "NonConvex",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/nonconvex.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#nonconvex",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

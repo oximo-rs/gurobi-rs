@@ -1,8 +1,8 @@
 {
   "name": "NLPHeur",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/nlpheur.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#nlpheur",
   "dtype": "int",
-  "default": "1",
-  "min": "0",
-  "max": "1"
+  "default": "-1",
+  "min": "-1",
+  "max": "3"
 }

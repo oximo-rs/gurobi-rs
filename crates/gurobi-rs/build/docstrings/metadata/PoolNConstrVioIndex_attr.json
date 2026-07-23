@@ -1,0 +1,7 @@
+{
+  "name": "PoolNConstrVioIndex",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#poolnconstrvioindex",
+  "dtype": "int",
+  "otype": "model",
+  "modifiable": false
+}

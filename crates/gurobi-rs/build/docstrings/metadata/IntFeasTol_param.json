@@ -1,6 +1,6 @@
 {
   "name": "IntFeasTol",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/intfeastol.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#intfeastol",
   "dtype": "dbl",
   "default": "1e-5",
   "min": "1e-9",

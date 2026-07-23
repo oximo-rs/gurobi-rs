@@ -1,5 +1,5 @@
-This attribute is used to query or modify the priority of objective $n$ when doing hierarchical multi-objective
-optimization. You set $n$ using the ObjNumber parameter.
+This attribute is used to query or modify the priority of objective \(n\) when doing hierarchical multi-objective
+optimization. You set \(n\) using the ObjNumber parameter.
 
 The default priority for an objective is 0.
 

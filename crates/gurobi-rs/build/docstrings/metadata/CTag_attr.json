@@ -1,6 +1,6 @@
 {
   "name": "CTag",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/ctag.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintlinear.html#ctag",
   "dtype": "str",
   "otype": "constr",
   "modifiable": true

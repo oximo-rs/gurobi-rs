@@ -1,0 +1,1 @@
+Maximum amount (in GB) of memory that was allocated at any point in time by the environment in which the model lives.

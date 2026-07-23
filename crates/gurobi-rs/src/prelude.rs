@@ -31,5 +31,8 @@ pub use crate::{
     SOS,
 };
 
+#[cfg(feature = "gurobi13")]
+pub use crate::GRB_METHOD_PDHG;
+
 pub use ModelSense::*;
 pub use VarType::*;

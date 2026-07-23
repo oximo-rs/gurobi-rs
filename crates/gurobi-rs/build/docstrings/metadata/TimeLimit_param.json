@@ -1,6 +1,6 @@
 {
   "name": "TimeLimit",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/timelimit.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#timelimit",
   "dtype": "dbl",
   "default": "Infinity",
   "min": "0",

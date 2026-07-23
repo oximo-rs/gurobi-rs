@@ -1,6 +1,6 @@
 {
   "name": "CliqueCuts",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/cliquecuts.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#cliquecuts",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

@@ -1,6 +1,6 @@
 {
   "name": "ScenNObjVal",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/scennobjval.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/multiscenario.html#scennobjval",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": false

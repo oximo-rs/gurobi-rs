@@ -1,0 +1,7 @@
+{
+  "name": "NLBarIterCount",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/model.html#nlbaritercount",
+  "dtype": "int",
+  "otype": "model",
+  "modifiable": false
+}

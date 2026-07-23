@@ -1,6 +1,6 @@
 {
   "name": "SiftMethod",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/siftmethod.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#siftmethod",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

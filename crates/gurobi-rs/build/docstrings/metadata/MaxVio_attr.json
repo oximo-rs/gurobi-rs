@@ -1,6 +1,6 @@
 {
   "name": "MaxVio",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/maxvio.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#maxvio",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": false

@@ -1,6 +1,6 @@
 {
   "name": "FuncPieceLength",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcpiecelength2.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#funcpiecelength",
   "dtype": "dbl",
   "default": "1e-2",
   "min": "1e-5",

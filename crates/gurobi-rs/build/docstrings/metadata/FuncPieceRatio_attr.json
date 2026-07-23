@@ -1,6 +1,6 @@
 {
   "name": "FuncPieceRatio",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/funcpieceratio.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintgeneral.html#funcpieceratio",
   "dtype": "dbl",
   "otype": "gconstr",
   "modifiable": true

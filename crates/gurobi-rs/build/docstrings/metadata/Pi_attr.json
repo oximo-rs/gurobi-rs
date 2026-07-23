@@ -1,6 +1,6 @@
 {
   "name": "Pi",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/pi.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintlinear.html#pi",
   "dtype": "dbl",
   "otype": "constr",
   "modifiable": false

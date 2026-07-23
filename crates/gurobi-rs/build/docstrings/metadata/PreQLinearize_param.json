@@ -1,6 +1,6 @@
 {
   "name": "PreQLinearize",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/preqlinearize.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#preqlinearize",
   "dtype": "int",
   "default": "-1",
   "min": "-1",

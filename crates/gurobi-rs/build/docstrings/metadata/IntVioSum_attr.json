@@ -1,6 +1,6 @@
 {
   "name": "IntVioSum",
-  "url": "https://www.gurobi.com/documentation/11.0/refman/intviosum.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/quality.html#intviosum",
   "dtype": "dbl",
   "otype": "model",
   "modifiable": false

@@ -1,0 +1,2 @@
+This is only applicable for LPs when solved with barrier and crossover. It captures the final status of the barrier
+algorithm before starting crossover. `Status` values are described in the `Status` Code section.

@@ -6,5 +6,5 @@ set of workers and a dynamic set of workers for distributed tuning. You can use 
 distributed worker cluster.
 
 Note that distributed tuning is most effective when the worker machines have similar performance. Distributed tuning
-doesn't attempt to normalize performance by server, so it can incorrectly attribute a boost in performance to a
+doesn’t attempt to normalize performance by server, so it can incorrectly attribute a boost in performance to a
 parameter change when the associated setting is tried on a worker that is significantly faster than the others.

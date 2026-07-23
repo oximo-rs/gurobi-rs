@@ -3,4 +3,4 @@ while a value of 1 chooses Nested Dissection ordering. The default value of -1 c
 modify this parameter if you notice that the barrier ordering phase is consuming a significant fraction of the overall
 barrier runtime.
 
-Note: Barrier only
+Barrier only
