@@ -1,6 +1,6 @@
 {
   "name": "Server",
-  "url": "https://www.gurobi.com/documentation/9.5/refman/server.html",
+  "url": "https://docs.gurobi.com/projects/optimizer/en/current/reference/",
   "dtype": "str",
   "otype": "model",
   "modifiable": false

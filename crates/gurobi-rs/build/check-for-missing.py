@@ -42,6 +42,8 @@ async def print_missing(impl, session, kind, full_list, implemented):
         print("\n\n" + f" New {kind.capitalize()}s ".center(100, "-"))
         print("\n".join(append_csv))
 
+    return not extra and not append_csv
+
 
 async def main(args):
     if args.gurobi13:
@@ -63,12 +65,19 @@ async def main(args):
             impl.fetch_parameter_list(session), impl.fetch_attribute_list(session)
         )
 
-        await print_missing(
-            impl, session, "parameter", parameters, implemented_parameters
+        results = await asyncio.gather(
+            print_missing(
+                impl, session, "parameter", parameters, implemented_parameters
+            ),
+            print_missing(
+                impl, session, "attribute", attributes, implemented_attributes
+            ),
         )
-        await print_missing(
-            impl, session, "attribute", attributes, implemented_attributes
-        )
+
+        if args.strict and not all(results):
+            raise SystemExit(
+                "catalog differs from the selected Gurobi reference manual"
+            )
 
 
 if __name__ == "__main__":
@@ -78,5 +87,10 @@ if __name__ == "__main__":
         action="store_true",
         help="Use the new docs.gurobi.com Sphinx site (utils_v13). "
         "Default: legacy gurobi.com/documentation/11.0/refman (utils.py).",
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit nonzero when the CSV has missing or extra entries",
     )
     asyncio.run(main(parser.parse_args()))
