@@ -1,10 +1,8 @@
 # gurobi-rs ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/oximo-rs/gurobi-rs?sort=semver) ![](https://img.shields.io/crates/v/gurobi-rs.svg) ![](https://img.shields.io/docsrs/gurobi-rs)
 
-This crate provides Rust bindings for Gurobi Optimizer.  It currently requires Gurobi 9.0 or higher.
+This crate provides Rust bindings for Gurobi Optimizer. It supports Gurobi 10, 11, 12, and 13.
 
 This library started as fork of the [`gurobi`](https://github.com/ubnt-intrepid/rust-gurobi) which appears to be no longer maintained.  It has since undergone a number of fundamental API changes.
-
-This crate supports Gurobi 10, 11, 12 and 13.
 
 ## Installing and Linking
 
@@ -12,12 +10,14 @@ Before using this crate, you should install Gurobi and obtain a [license](http:/
 
 ### Feature flags
 
-The `gurobi-rs` crate requires one of the following feature flags to be set:
+The `gurobi-rs` crate requires one feature flag matching the installed Gurobi major version:
 
-- `gurobi13`
-- `gurobi12`
-- `gurobi11`
-- `gurobi10`
+| Gurobi | Cargo feature |
+| ------ | ------------- |
+| 10.x   | `gurobi10`    |
+| 11.x   | `gurobi11`    |
+| 12.x   | `gurobi12`    |
+| 13.x   | `gurobi13`    |
 
 The flag should match the major version of Gurobi, for example (in Cargo.toml):
 
@@ -27,7 +27,12 @@ gurobi-rs = {..., features = ['gurobi13']}
 
 for Gurobi 13.X.
 
-If multiple feature flags are set, the highest version one is used, i.e. setting `gurobi13` and `gurobi10` is equivalent to only setting `gurobi13`.
+If multiple feature flags are set, the highest version one is used. For example, setting
+`gurobi13` and `gurobi10` is equivalent to setting only `gurobi13`.
+
+The generated attributes and parameters use the common catalog for the supported baseline and
+gate Gurobi 13 additions behind `gurobi13`. Catalog changes must preserve these gates; see
+[`build/readme.md`](build/readme.md) for the release check and installed-library test matrix.
 
 ### Building
 
@@ -42,8 +47,8 @@ export LIBRARY_PATH="LIBRARY_PATH:/opt/gurobi/linux64/lib"
 
 in your `~/.profile` file.  You can also set this in a `PROJECT/.cargo/config.toml` file on per project basis (see the `[env]` [section](https://doc.rust-lang.org/cargo/reference/config.html)).
 
-The other option is to set the environment variable `GUROBI_HOME` set to the installation path of Gurobi
-(like eg `/opt/gurobi95/linux64`).  
+The other option is to set the environment variable `GUROBI_HOME` to the installation path of Gurobi
+(for example, `/opt/gurobi/linux64`).
 
 The Gurobi shared library will have the major and minor version of Gurobi in the library name.  For example, Gurobi 11.0.* will have a shared library file `libgurobi110.so`.  The `guro-sys` crate, which this crate depends on, will link against with `-lgurobi110`.  On Linux, we make an guess for the library name based on `GUROBI_HOME`.  If this guess is incorrect (or `GUROBI_HOME` is not set, or you are on Windows), you will need to set the `GUROBI_LIBNAME` environment variable.  For example, suppose you have the `LIBRARY_PATH` set to `/opt/gurobi1003/linux64/lib` (which contains `libgurobi100.so`), and `GUROBI_HOME` is **not set**.  Then, you would set `GUROBI_LIBNAME=gurobi100`, so that the correct `-lgurobi100` flag is emitted during compilation.
 
@@ -59,11 +64,12 @@ In this case, you need to set the `LD_LIBRARY_PATH` (on Windows I believe this i
 For the example below, suppose Gurobi is in the path `/opt/gurobi/linux64/lib/libgurobi95.so`.  You set `LD_LIBRARY_PATH` in the same manner as the `LIBRARY_PATH` variable, in your `~/.profile`:
 
 ```base
-export LD_LIBRARY_PATH="LD_LIBRARY_PATH:/opt/gurobi/linux64/lib"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/gurobi/linux64/lib"
 ```
 
 ## Documentation
-Docs can be found on [docs.rs](https://docs.rs/gurobi-rs/)
+Docs can be found on [docs.rs](https://docs.rs/gurobi-rs/) and the
+[Gurobi reference manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 
 ## License
 This software is released under the [MIT license](LICENSE).

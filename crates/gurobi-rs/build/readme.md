@@ -1,7 +1,26 @@
 # The Build Script
 
-This build script is responsible for generating the enums containing Gurobi Attributes and Parameters.
-The inputs are two CSV files in this directory.
+This build script is responsible for generating the enums containing Gurobi attributes and parameters.
+The inputs are `attrs.csv` and `params.csv` in this directory. The generated catalog is part of
+the compatibility surface: every catalog update must be version-gated and checked against the
+installed Gurobi library for the corresponding Cargo feature.
+
+## Supported version matrix
+
+The public feature-to-library mapping is:
+
+| Gurobi major version | Cargo feature | Catalog entries                        |
+| -------------------- | ------------- | -------------------------------------- |
+| 10                   | `gurobi10`    | common entries                         |
+| 11                   | `gurobi11`    | common entries                         |
+| 12                   | `gurobi12`    | common entries                         |
+| 13                   | `gurobi13`    | common entries plus `gurobi13` entries |
+
+An empty `feature` field means that an entry is generated for every supported version. A
+`gurobi13` value adds an entry only when the `gurobi13` Cargo feature is selected. Keep a new
+attribute or parameter out of the common catalog until it is present in every supported library.
+The generator currently accepts only the empty value and `gurobi13`; adding another gate requires
+updating `build/main.rs`, the feature matrix, and the checks below together.
 
 ## Running the Python tooling
 
@@ -16,8 +35,18 @@ For Gurobi 13, select the current Sphinx documentation scraper explicitly:
 
 ```sh
 uv run scrape-docs.py --gurobi13
-uv run check-for-missing.py --gurobi13
+uv run check-for-missing.py --gurobi13 --strict
 ```
+
+The legacy scraper can also be run in strict mode when checking the common catalog:
+
+```sh
+uv run check-for-missing.py --strict
+```
+
+The strict checks compare the CSV catalog with the selected online reference manual and return a
+failure when an entry is missing or extra. Review any difference against the intended version
+gate before editing the CSV files.
 
 `attrs.csv` has the following format:
 
@@ -37,8 +66,9 @@ The allowed values for `dtype` are described below:
 | `custom` | Custom datatype, no marker traits will be added. |
 
 The `otype` is the object type to which this attribute belongs (`Model`, `Var`, `Constr`, etc).
-The allowed values for `otype` are listed below. The optional `feature` field restricts an entry to a Cargo feature;
-currently, `gurobi13` is the only supported value. Leave it empty for attributes available in every supported version.
+The allowed values for `otype` are listed below. The optional `feature` field restricts an entry to
+a Cargo feature. Leave it empty for attributes available in every supported version; use
+`gurobi13` only for attributes introduced by Gurobi 13.
 
 | `otype`   | Description                           |
 | --------- | ------------------------------------- |
@@ -56,8 +86,8 @@ for `otype = "constr"` and `dtype = "str"` the following code is generated (in  
 /// String Gurobi attributes for [`Constr`](crate::Constr) objects.
 /// 
 /// This enum contains the following Gurobi attributes:
-///  - [`CTag`](https://www.gurobi.com/documentation/9.1/refman/ctag.html)
-///  - [`ConstrName`](https://www.gurobi.com/documentation/9.1/refman/constrname.html)
+///  - [`CTag`](https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintlinear.html#attr-CTag)
+///  - [`ConstrName`](https://docs.gurobi.com/projects/optimizer/en/current/reference/attributes/constraintlinear.html#attr-ConstrName)
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, FromCStr, AsCStr)]
 pub enum ConstrStrAttr {
     CTag,
@@ -91,12 +121,12 @@ for `dtype = "str"`
 /// String Gurobi parameters.
 /// 
 /// This enum contains the following Gurobi parameters:
-///  - [`LogFile`](https://www.gurobi.com/documentation/9.1/refman/logfile.html)
-///  - [`NodefileDir`](https://www.gurobi.com/documentation/9.1/refman/nodefiledir.html)
-///  - [`ResultFile`](https://www.gurobi.com/documentation/9.1/refman/resultfile.html)
-///  - [`WorkerPool`](https://www.gurobi.com/documentation/9.1/refman/workerpool.html)
-///  - [`WorkerPassword`](https://www.gurobi.com/documentation/9.1/refman/workerpassword.html)
-///  - [`Dummy`](https://www.gurobi.com/documentation/9.1/refman/dummy.html)
+///  - [`LogFile`](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#param-LogFile)
+///  - [`NodefileDir`](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#param-NodefileDir)
+///  - [`ResultFile`](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#param-ResultFile)
+///  - [`WorkerPool`](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#param-WorkerPool)
+///  - [`WorkerPassword`](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#param-WorkerPassword)
+///  - [`Dummy`](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html#param-Dummy)
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, FromCStr, AsCStr)]
 pub enum StrParam {
     LogFile,
@@ -121,3 +151,17 @@ pub mod variant_exports {
   ...
 }
 ```
+
+## Release check
+
+From the repository root, run the dependency-free catalog validation and compile the generated
+Rust code for every supported feature:
+
+```sh
+uv run crates/gurobi-rs/build/check-catalog.py
+```
+
+Each command must resolve the shared library for the selected major version through
+`GUROBI_HOME`, `GUROBI_LIBNAME`, and the platform library path. Do not use a different installed
+major version to validate a feature. A catalog refresh is complete only after the generated-code
+check, the strict reference-manual check, and the corresponding installed-library checks pass.
