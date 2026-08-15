@@ -17,6 +17,48 @@ use crate::prelude::*;
 use crate::util::AsPtr;
 use crate::{Error, Result};
 
+/// The data needed to add one variable with [`Model::add_vars`].
+///
+/// The column coefficients contain `(constraint, coefficient)` pairs.  The
+/// constraints must already be present in the model before the variable is
+/// added, just as they must be for [`Model::add_var`].
+#[derive(Debug, Clone)]
+pub struct VarSpec {
+    /// The variable name.  An empty name lets Gurobi assign no name.
+    pub name: String,
+    /// The variable type.
+    pub vtype: VarType,
+    /// The objective coefficient.
+    pub obj: f64,
+    /// The lower bound.
+    pub lb: f64,
+    /// The upper bound.
+    pub ub: f64,
+    /// Sparse column coefficients, indexed by constraint.
+    pub col_coeff: Vec<(Constr, f64)>,
+}
+
+impl VarSpec {
+    /// Create a variable specification.
+    pub fn new(
+        name: impl Into<String>,
+        vtype: VarType,
+        obj: f64,
+        lb: f64,
+        ub: f64,
+        col_coeff: impl IntoIterator<Item = (Constr, f64)>,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            vtype,
+            obj,
+            lb,
+            ub,
+            col_coeff: col_coeff.into_iter().collect(),
+        }
+    }
+}
+
 /// Gurobi Model object.
 ///
 /// This will be where the bulk of interactions with Gurobi occur.
@@ -653,6 +695,95 @@ impl Model {
             )
         })?;
         Ok(self.vars.add_new(self.update_mode_lazy()?))
+    }
+
+    /// Add multiple decision variables to the model in a single Gurobi API call.
+    ///
+    /// Each [`VarSpec`] describes one sparse column.  The returned handles are
+    /// in the same order as the input specifications.
+    ///
+    /// # Examples
+    /// ```
+    /// # use gurobi_rs::prelude::*;
+    /// let mut m = Model::new("model")?;
+    /// let x = add_ctsvar!(m)?;
+    /// let c = m.add_constr("c", c!(x <= 1))?;
+    /// let vars = m.add_vars([
+    ///     VarSpec::new("y", Continuous, 1.0, 0.0, INFINITY, [(c, 2.0)]),
+    ///     VarSpec::new("z", Binary, 0.0, 0.0, 1.0, []),
+    /// ])?;
+    /// assert_eq!(vars.len(), 2);
+    /// # Ok::<(), gurobi_rs::Error>(())
+    /// ```
+    pub fn add_vars<I>(&mut self, vars: I) -> Result<Vec<Var>>
+    where
+        I: IntoIterator<Item = VarSpec>,
+    {
+        let vars = vars.into_iter();
+        let (capacity, _) = vars.size_hint();
+
+        let mut names = Vec::with_capacity(capacity);
+        let mut cnames = Vec::with_capacity(capacity);
+        let mut obj = Vec::with_capacity(capacity);
+        let mut lb = Vec::with_capacity(capacity);
+        let mut ub = Vec::with_capacity(capacity);
+        let mut vtype = Vec::with_capacity(capacity);
+        let mut vbeg = Vec::with_capacity(capacity);
+        let mut vind = Vec::new();
+        let mut vval = Vec::new();
+
+        let mut numvars = 0;
+        let mut v_start = 0;
+        for var in vars {
+            let name = CString::new(var.name)?;
+            cnames.push(name.as_ptr());
+            names.push(name);
+            obj.push(var.obj);
+            lb.push(var.lb);
+            ub.push(var.ub);
+            vtype.push(var.vtype.into());
+            vbeg.push(v_start);
+
+            for (constr, coeff) in var.col_coeff {
+                vind.push(self.get_index_build(&constr)?);
+                vval.push(coeff);
+            }
+            v_start = vind.len() as c_int;
+            numvars += 1;
+        }
+
+        if numvars == 0 {
+            return Ok(Vec::new());
+        }
+
+        let lazy = self.update_mode_lazy()?;
+        let vind_ptr = if vind.is_empty() {
+            std::ptr::null()
+        } else {
+            vind.as_ptr()
+        };
+        let vval_ptr = if vval.is_empty() {
+            std::ptr::null()
+        } else {
+            vval.as_ptr()
+        };
+        self.check_apicall(unsafe {
+            ffi::GRBaddvars(
+                self.ptr,
+                numvars as c_int,
+                vind.len() as c_int,
+                vbeg.as_ptr(),
+                vind_ptr,
+                vval_ptr,
+                obj.as_ptr(),
+                lb.as_ptr(),
+                ub.as_ptr(),
+                vtype.as_ptr(),
+                cnames.as_ptr(),
+            )
+        })?;
+
+        Ok((0..numvars).map(|_| self.vars.add_new(lazy)).collect())
     }
 
     /// Add a Linear constraint to the model.

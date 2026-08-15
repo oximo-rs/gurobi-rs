@@ -167,7 +167,7 @@ pub use error::{Error, Result};
 
 #[path = "model.rs"]
 mod model;
-pub use model::{AsyncHandle, AsyncModel, Model};
+pub use model::{AsyncHandle, AsyncModel, Model, VarSpec};
 
 #[path = "model_object.rs"]
 pub(crate) mod model_object;

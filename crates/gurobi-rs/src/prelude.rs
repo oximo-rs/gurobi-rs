@@ -25,6 +25,7 @@ pub use crate::{
     SOSType,
     Status,
     Var,
+    VarSpec,
     // constants
     VarType,
     INFINITY,

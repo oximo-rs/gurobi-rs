@@ -4,7 +4,7 @@ Merge in non-breaking parts of dogfood branch.
 
 Benchmarks:
 
-- Batch add var/constr, set/get attribute methods: are they even worth supporting?
+- Benchmark batched variable/constraint construction and set/get attribute methods.
 
 For next major release:
 
