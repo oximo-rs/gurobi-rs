@@ -4,7 +4,7 @@
 //! At each of these points, the user may query or modify the model in different ways.
 //!
 //! This module provides a context handle type for each place at which a callback may be called.
-//! In the Gurobi [manual](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html),
+//! In the Gurobi [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/),
 //! these are represented by the `where` values. The handle types are bundled in the
 //! [`Where`] enum, so to obtain an instance of a particular handle type
 //! in a callback, use pattern matching. For example:
@@ -329,13 +329,13 @@ macro_rules! impl_add_lazy {
     };
 }
 
-/// Callback context object during [`POLLING`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`POLLING`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct PollingCtx<'a>(CbCtx<'a>);
 impl<'a> PollingCtx<'a> {
     impl_common! {}
 }
 
-/// Callback context object during [`PRESOLVE`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`PRESOLVE`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct PreSolveCtx<'a>(CbCtx<'a>);
 impl<'a> PreSolveCtx<'a> {
     impl_common! {}
@@ -348,7 +348,7 @@ impl<'a> PreSolveCtx<'a> {
     impl_getter! { coeff_chg, i32, PRESOLVE, PRE_COECHG, "Number of coefficients changed so far." }
 }
 
-/// Callback context object during [`SIMPLEX`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`SIMPLEX`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct SimplexCtx<'a>(CbCtx<'a>);
 impl<'a> SimplexCtx<'a> {
     impl_common! {}
@@ -361,7 +361,7 @@ impl<'a> SimplexCtx<'a> {
     impl_getter! { is_perturbed, i32, SIMPLEX, SPX_ISPERT, "Is problem currently perturbed?" }
 }
 
-/// Callback context object during [`MIP`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`MIP`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct MIPCtx<'a>(CbCtx<'a>);
 impl<'a> MIPCtx<'a> {
     impl_common! {}
@@ -383,7 +383,7 @@ impl<'a> MIPCtx<'a> {
     }
 }
 
-/// Callback context object during [`MIPSOL`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`MIPSOL`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct MIPSolCtx<'a>(CbCtx<'a>);
 impl<'a> MIPSolCtx<'a> {
     /// This method is a no-op. It was added to this type by mistake but is kept for backwards-compatibility.
@@ -422,7 +422,7 @@ impl<'a> MIPSolCtx<'a> {
     }
 }
 
-/// Callback context object during [`MIPNODE`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`MIPNODE`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct MIPNodeCtx<'a>(CbCtx<'a>);
 impl<'a> MIPNodeCtx<'a> {
     /// Add a new (linear) cutting plane to the MIP model.
@@ -464,7 +464,7 @@ impl<'a> MIPNodeCtx<'a> {
     impl_getter! { sol_cnt, i32, MIPNODE, MIPNODE_SOLCNT, "Current count of feasible solutions found." }
 }
 
-/// Callback context object during [`MESSAGE`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`MESSAGE`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct MessageCtx<'a>(CbCtx<'a>);
 impl<'a> MessageCtx<'a> {
     /// The message about to be logged
@@ -477,7 +477,7 @@ impl<'a> MessageCtx<'a> {
     impl_common! {}
 }
 
-/// Callback context object during [`BARRIER`](https://www.gurobi.com/documentation/9.1/refman/cb_codes.html).
+/// Callback context object during [`BARRIER`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct BarrierCtx<'a>(CbCtx<'a>);
 impl<'a> BarrierCtx<'a> {
     impl_common! {}
@@ -499,7 +499,7 @@ fn negative_int_to_none(val: i32) -> Option<u32> {
     }
 }
 
-/// Callback context object during [`IIS`](https://www.gurobi.com/documentation/9.5/refman/cb_codes.html).
+/// Callback context object during [`IIS`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 pub struct IISCtx<'a>(CbCtx<'a>);
 impl<'a> IISCtx<'a> {
     impl_common! {}

@@ -1,4 +1,4 @@
-//! [Gurobi Attributes](https://www.gurobi.com/documentation/9.1/refman/attributes.html) for models,
+//! [Gurobi Attributes](https://docs.gurobi.com/projects/optimizer/en/current/reference/) for models,
 //! constraints and variables.
 //!
 //! Setting or querying the wrong attribute for an object will result in an [`Error::FromAPI`](crate::Error::FromAPI).
@@ -594,9 +594,15 @@ mod tests {
                     let param = line.next().unwrap();
                     let ty = line.next().unwrap();
                     let obj = line.next().unwrap();
+                    let enabled = match line.next().unwrap_or_default() {
+                        "" => true,
+                        "gurobi13" => cfg!(feature = "gurobi13"),
+                        feature => panic!("unsupported catalog feature: {feature}"),
+                    };
                     assert_eq!(line.next(), None);
-                    (param.to_string(), ty.to_string(), obj.to_string())
+                    enabled.then(|| (param.to_string(), ty.to_string(), obj.to_string()))
                 })
+                .flatten()
                 .collect();
 
         let mut model = crate::Model::new("test")?;

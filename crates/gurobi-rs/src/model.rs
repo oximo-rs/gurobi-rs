@@ -277,12 +277,12 @@ impl Model {
     /// Here we assume that the `GRBEnv` is tied to a specific `GRBModel`
     /// In other words, the pointer returned by GRBgetenv(model) is unique to
     /// that model.  It is explicitly stated in the docs for
-    /// [`GRBnewmodel`](https://www.gurobi.com/documentation/9.1/refman/c_newmodel.html)
+    /// [`GRBnewmodel`](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
     /// that the environment the user supplies is copied,  but must be assumed for other
     /// Gurobi routines that create new `GRBmodel`s like
-    /// [`GRBfeasrelax`](https://www.gurobi.com/documentation/9.1/refman/c_feasrelax.html),
-    /// [`GRBfixmodel`](https://www.gurobi.com/documentation/9.1/refman/c_fixmodel.html)
-    /// and [`GRBreadmodel`](https://www.gurobi.com/documentation/9.1/refman/c_readmodel.html)
+    /// [`GRBfeasrelax`](https://docs.gurobi.com/projects/optimizer/en/current/reference/),
+    /// [`GRBfixmodel`](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
+    /// and [`GRBreadmodel`](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
     /// This assumption is necessary to prevent a double free when a `Model` object is dropped,
     /// which frees the `GRBModel` and triggers the drop of a `Env`, which in turn
     /// frees the `GRBEnv`.  The `*copies_env` tests in this module validate this assumption.
@@ -400,7 +400,7 @@ impl Model {
         Env::DEFAULT_ENV.with(|env| Model::from_file_with_env(filename, env))
     }
 
-    /// Read a model from a file.  See the [manual](https://www.gurobi.com/documentation/9.1/refman/c_readmodel.html) for accepted file formats.
+    /// Read a model from a file. See the [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/) for accepted file formats.
     pub fn from_file_with_env(filename: impl AsRef<Path>, env: &Env) -> Result<Model> {
         let filename = crate::util::path_to_cstring(filename)?;
         let mut model = null_mut();
@@ -629,7 +629,7 @@ impl Model {
     /// Import optimization data from a file. This routine is the general entry point for importing
     /// data from a file into a model. It can be used to read start vectors for MIP models,
     /// basis files for LP models, or parameter settings. The type of data read is determined by the file suffix.
-    /// File formats are described in the [manual](https://www.gurobi.com/documentation/9.1/refman/model_file_formats.html#sec:FileFormats).
+    /// File formats are described in the [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
     ///
     /// If you wish to construct a model from an format like `MPS` or `LP`, use [`Model::from_file`].
     pub fn read(&mut self, filename: impl AsRef<Path>) -> Result<()> {
@@ -1532,7 +1532,7 @@ impl Model {
         Ok((vars, cons))
     }
 
-    /// Add a quadratic constraint to the model.  See the [manual](https://www.gurobi.com/documentation/9.1/refman/c_addqconstr.html)
+    /// Add a quadratic constraint to the model. See the [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
     /// for which quadratic expressions are accepted by Gurobi.
     ///
     /// # Errors
@@ -1565,7 +1565,7 @@ impl Model {
         Ok(self.qconstrs.add_new(self.update_mode_lazy()?))
     }
 
-    /// Add a single [Special Order Set (SOS)](https://www.gurobi.com/documentation/9.1/refman/constraints.html#subsubsection:SOSConstraints)
+    /// Add a single [Special Order Set (SOS)](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
     /// constraint to the model.
     ///
     /// # Errors
@@ -1956,7 +1956,7 @@ impl Model {
 
     /// Capture a single scenario from a multi-scenario model. Use the `ScenarioNumber` parameter to indicate which
     /// scenario to capture. See the
-    /// [manual](https://www.gurobi.com/documentation/9.5/refman/multiple_scenarios.html#sec:MultipleScenarios)
+    /// [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
     /// for details on multi-scenario models.
     pub fn single_scenario_model(&mut self) -> Result<Model> {
         let mut model_ptr: *mut ffi::GRBmodel = std::ptr::null_mut();
@@ -2185,7 +2185,7 @@ impl AsyncHandle {
 
 /// A wrapper around [`Model`] that supports async optimisation in the background.
 ///
-///  From the Gurobi [manual](https://www.gurobi.com/documentation/9.1/refman/c_optimizeasync.html), regarding solving models asynchronously:
+///  From the Gurobi [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/), regarding solving models asynchronously:
 ///
 /// *"[modifying or performing non-permitted] calls on the running model, **or on any other models that were built within the same Gurobi environment**,
 ///  will fail with error code `OPTIMIZATION_IN_PROGRESS`."*

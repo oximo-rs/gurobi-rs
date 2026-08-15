@@ -100,7 +100,7 @@ pub mod callback {
     pub const IIS_BOUNDGUESS: i32 = 9006;
 }
 
-/// Gurobi variable types (see [manual](https://www.gurobi.com/documentation/9.1/refman/variables.html))
+/// Gurobi variable types (see [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/))
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 #[repr(u8)]
 #[allow(missing_docs)]
@@ -189,7 +189,7 @@ impl TryFrom<i32> for ModelSense {
     }
 }
 
-/// Type of [SOS constraint](https://www.gurobi.com/documentation/9.1/refman/constraints.html)
+/// Type of [SOS constraint](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
 #[derive(Debug, Copy, Clone)]
 #[repr(i32)]
 pub enum SOSType {

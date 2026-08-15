@@ -50,9 +50,9 @@ impl AsPtr for Env {
     }
 }
 
-/// Gurobi environment object (see the Gurobi [manual](https://www.gurobi.com/documentation/9.1/refman/environments.html))
+/// Gurobi environment object (see the Gurobi [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/))
 /// A Gurobi environment which hasn't been started yet. Some Gurobi parameters,
-/// such as [`Record`](https://www.gurobi.com/documentation/9.1/refman/record.html)
+/// such as [`Record`](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
 /// need to be set before the environment has been started.
 ///
 /// Setting [`param::OutputFlag`](crate::param::OutputFlag) to 0 on an `EmptyEnv` is useful for stopping the license info from

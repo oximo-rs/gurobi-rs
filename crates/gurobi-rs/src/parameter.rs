@@ -1,6 +1,6 @@
 #![allow(clippy::missing_safety_doc)]
 //! Gurobi parameters for [`Env`]  and [`Model`](crate::Model) objects.  See the
-//! [manual](https://www.gurobi.com/documentation/9.1/refman/parameters.html) for a list
+//! [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/) for a list
 //! of parameters and their uses.
 use std::ffi::{CStr, CString};
 
@@ -222,9 +222,15 @@ mod tests {
                     let mut line = line.split(',');
                     let param = line.next().unwrap();
                     let ty = line.next().unwrap();
+                    let enabled = match line.next().unwrap_or_default() {
+                        "" => true,
+                        "gurobi13" => cfg!(feature = "gurobi13"),
+                        feature => panic!("unsupported catalog feature: {feature}"),
+                    };
                     assert_eq!(line.next(), None);
-                    (param.to_string(), ty.to_string())
+                    enabled.then(|| (param.to_string(), ty.to_string()))
                 })
+                .flatten()
                 .collect();
 
         let model = crate::Model::new("test")?;

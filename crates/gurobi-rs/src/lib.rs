@@ -1,4 +1,22 @@
-//! This crate provides Rust bindings for Gurobi Optimizer.  It currently requires Gurobi 9.5
+//! This crate provides Rust bindings for Gurobi Optimizer.
+//!
+//! The crate supports Gurobi 10, 11, 12, and 13. Select the Cargo feature matching the
+//! major version of the installed Gurobi library:
+//!
+//! | Gurobi | Cargo feature | ABI family                 |
+//! | ------ | ------------- | -------------------------- |
+//! | 10.x   | `gurobi10`    | legacy                     |
+//! | 11.x   | `gurobi11`    | legacy                     |
+//! | 12.x   | `gurobi12`    | version 12                 |
+//! | 13.x   | `gurobi13`    | version 12 environment ABI |
+//!
+//! Select one version feature in a normal dependency declaration. If multiple version
+//! features are enabled, the highest one is used. Gurobi 13 uses the version 12 environment
+//! ABI exposed by `guro-sys`, while its version-specific attributes and parameters are gated
+//! behind `gurobi13`.
+//!
+//! The generated attribute and parameter documentation is based on the
+//! [Gurobi reference manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/).
 //!
 //! ## Quick Start
 //! The example below sets up and solves a Mixed Integer Program (MIP).  Additional examples covering the more specific aspects of this crate's API can
@@ -58,7 +76,6 @@
 //! if a method or function returns a [`Result`], the error will be [`Error::FromAPI`].
 #![warn(missing_docs)]
 #![warn(rustdoc::missing_crate_level_docs)]
-// TODO: fix the doc links to reference the 9.5 manual
 
 // The whole lib is wrapped in this cfg-if block, so in the likely scenario a user forgets to set a feature flag,
 // they only see a single, relevant error.
