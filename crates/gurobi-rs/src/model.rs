@@ -757,11 +757,12 @@ impl Model {
             }
         }
 
+        let numnz = cind.len() as ffi::c_int;
         self.check_apicall(unsafe {
             ffi::GRBaddconstrs(
                 self.ptr,
                 cnames.len() as ffi::c_int,
-                cbeg.len() as ffi::c_int,
+                numnz,
                 cbeg.as_ptr(),
                 cind.as_ptr(),
                 cval.as_ptr(),
@@ -772,7 +773,9 @@ impl Model {
         })?;
 
         let lazy = self.update_mode_lazy()?;
-        Ok(vec![self.constrs.add_new(lazy); cnames.len()])
+        Ok((0..cnames.len())
+            .map(|_| self.constrs.add_new(lazy))
+            .collect())
     }
 
     /// Add a MIN constraint to the model.
@@ -1376,11 +1379,12 @@ impl Model {
             }
         }
 
+        let numnz = cind.len() as ffi::c_int;
         self.check_apicall(unsafe {
             ffi::GRBaddrangeconstrs(
                 self.ptr,
                 cnames.len() as ffi::c_int,
-                cbeg.len() as ffi::c_int,
+                numnz,
                 cbeg.as_ptr(),
                 cind.as_ptr(),
                 cval.as_ptr(),
@@ -1392,8 +1396,8 @@ impl Model {
 
         let ncons = names.len();
         let lazy = self.update_mode_lazy()?;
-        let vars = vec![self.vars.add_new(lazy); ncons];
-        let cons = vec![self.constrs.add_new(lazy); ncons];
+        let vars = (0..ncons).map(|_| self.vars.add_new(lazy)).collect();
+        let cons = (0..ncons).map(|_| self.constrs.add_new(lazy)).collect();
         Ok((vars, cons))
     }
 
