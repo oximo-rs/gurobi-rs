@@ -10,5 +10,6 @@ fn compile_tests() {
     cases.compile_fail("tests/compile-tests/garbage.rs");
     cases.compile_fail("tests/compile-tests/bad_add_var_args.rs");
     cases.pass("tests/compile-tests/add_var.rs");
+    cases.pass("tests/compile-tests/callback_surface.rs");
     cases.compile_fail("tests/compile-tests/user_cuts_deprecated.rs");
 }

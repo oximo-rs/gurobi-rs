@@ -67,6 +67,7 @@ pub mod callback {
 
     pub const MSG_STRING: i32 = 6001;
     pub const RUNTIME: i32 = 6002;
+    pub const WORK: i32 = 6003;
 
     pub const BARRIER_ITRCNT: i32 = 7001;
     pub const BARRIER_PRIMOBJ: i32 = 7002;
@@ -81,6 +82,15 @@ pub mod callback {
     pub const MULTIOBJ_SOLCNT: i32 = 8002;
     #[allow(dead_code)]
     pub const MULTIOBJ_SOL: i32 = 8003;
+    pub const MULTIOBJ_STATUS: i32 = 8004;
+    pub const MULTIOBJ_OBJBST: i32 = 8005;
+    pub const MULTIOBJ_OBJBND: i32 = 8006;
+    pub const MULTIOBJ_MIPGAP: i32 = 8007;
+    pub const MULTIOBJ_ITRCNT: i32 = 8008;
+    pub const MULTIOBJ_NODCNT: i32 = 8009;
+    pub const MULTIOBJ_NODLFT: i32 = 8010;
+    pub const MULTIOBJ_RUNTIME: i32 = 8011;
+    pub const MULTIOBJ_WORK: i32 = 8012;
 
     pub const IIS_CONSTRMIN: i32 = 9001;
     pub const IIS_CONSTRMAX: i32 = 9002;

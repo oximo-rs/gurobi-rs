@@ -282,12 +282,20 @@ macro_rules! impl_set_solution {
     };
 }
 
-// TODO: add WORK; rename
 macro_rules! impl_runtime {
     () => {
         /// Retrieve the elapsed solver runtime in seconds.
         pub fn runtime(&self) -> Result<f64> {
             self.0.get_runtime()
+        }
+    };
+}
+
+macro_rules! impl_work {
+    () => {
+        /// Retrieve the solver work accumulated so far, in work units.
+        pub fn work(&self) -> Result<f64> {
+            self.0.get_work()
         }
     };
 }
@@ -332,6 +340,7 @@ pub struct PreSolveCtx<'a>(CbCtx<'a>);
 impl<'a> PreSolveCtx<'a> {
     impl_common! {}
     impl_runtime! {}
+    impl_work! {}
     impl_getter! { col_del, i32, PRESOLVE, PRE_COLDEL, "Number of columns removed so far." }
     impl_getter! { row_del, i32, PRESOLVE, PRE_ROWDEL, "Number of rows removed so far." }
     impl_getter! { sense_chg, i32, PRESOLVE, PRE_SENCHG, "Number of constraint senses changed so far." }
@@ -344,6 +353,7 @@ pub struct SimplexCtx<'a>(CbCtx<'a>);
 impl<'a> SimplexCtx<'a> {
     impl_common! {}
     impl_runtime! {}
+    impl_work! {}
     impl_getter! { iter_cnt, f64, SIMPLEX, SPX_ITRCNT, "Current simplex iteration count." }
     impl_getter! { obj_val, f64, SIMPLEX, SPX_OBJVAL, "Current simplex objective value." }
     impl_getter! { prim_inf, f64, SIMPLEX, SPX_PRIMINF, "Current primal infeasibility." }
@@ -357,6 +367,7 @@ impl<'a> MIPCtx<'a> {
     impl_common! {}
     impl_set_solution! {}
     impl_runtime! {}
+    impl_work! {}
     impl_getter! { open_scenarios, i32, MIP, MIP_OPENSCENARIOS, "Number of scenarios that are still open in a multi-scenario model." }
     impl_getter! { obj_best, f64, MIP, MIP_OBJBST, "Current best objective." }
     impl_getter! { obj_bnd, f64, MIP, MIP_OBJBND, "Current best objective bound." }
@@ -396,6 +407,7 @@ impl<'a> MIPSolCtx<'a> {
     impl_common! {}
     impl_set_solution! {}
     impl_runtime! {}
+    impl_work! {}
     impl_add_lazy! {}
     impl_getter! { open_scenarios, i32, MIPSOL, MIPSOL_OPENSCENARIOS, "Number of scenarios that are still open in a multi-scenario model." }
     impl_getter! { obj, f64, MIPSOL, MIPSOL_OBJ, "Objective value for the new solution." }
@@ -443,6 +455,7 @@ impl<'a> MIPNodeCtx<'a> {
     impl_set_solution! {}
     impl_common! {}
     impl_runtime! {}
+    impl_work! {}
     impl_add_lazy! {}
     impl_getter! { open_scenarios, i32, MIPNODE, MIPNODE_OPENSCENARIOS, "Number of scenarios that are still open in a multi-scenario model." }
     impl_getter! { obj_best, f64, MIPNODE, MIPNODE_OBJBST, "Current best objective." }
@@ -469,6 +482,7 @@ pub struct BarrierCtx<'a>(CbCtx<'a>);
 impl<'a> BarrierCtx<'a> {
     impl_common! {}
     impl_runtime! {}
+    impl_work! {}
     impl_getter! { iter_cnt, i32, BARRIER, BARRIER_ITRCNT, "Current simplex iteration count." }
     impl_getter! { prim_obj, f64, BARRIER, BARRIER_PRIMOBJ, "Primal objective value for current barrier iterate." }
     impl_getter! { dual_obj, f64, BARRIER, BARRIER_DUALOBJ, "Dual objective value for current barrier iterate." }
@@ -490,6 +504,7 @@ pub struct IISCtx<'a>(CbCtx<'a>);
 impl<'a> IISCtx<'a> {
     impl_common! {}
     impl_runtime! {}
+    impl_work! {}
     impl_getter! { constr_min, i32, IIS, IIS_CONSTRMIN, "Minimum number of constraints in the IIS."}
     impl_getter! { constr_max, i32, IIS, IIS_CONSTRMAX, "Maximum number of constraints in the IIS."}
     impl_getter! { constr_guess, i32 => Option<u32>, IIS, IIS_CONSTRGUESS,
@@ -504,7 +519,99 @@ impl<'a> IISCtx<'a> {
     }
 }
 
-/// TODO: (medium) add `MultiObj` ctx
+/// Callback context object at the end of a multi-objective optimization pass.
+pub struct MultiObjCtx<'a>(CbCtx<'a>);
+impl<'a> MultiObjCtx<'a> {
+    impl_common! {}
+
+    /// Retrieve the elapsed runtime for the current objective in seconds.
+    pub fn runtime(&self) -> Result<f64> {
+        self.0.get_double(MULTIOBJ, MULTIOBJ_RUNTIME)
+    }
+
+    /// Retrieve the solver work accumulated for the current objective.
+    pub fn work(&self) -> Result<f64> {
+        self.0.get_double(MULTIOBJ, MULTIOBJ_WORK)
+    }
+
+    impl_getter! {
+        obj_cnt,
+        i32,
+        MULTIOBJ,
+        MULTIOBJ_OBJCNT,
+        "Number of objectives already optimized."
+    }
+    impl_getter! {
+        sol_cnt,
+        i32,
+        MULTIOBJ,
+        MULTIOBJ_SOLCNT,
+        "Number of solutions presented for the current objective."
+    }
+    impl_getter! {
+        status,
+        i32 => Status,
+        MULTIOBJ,
+        MULTIOBJ_STATUS,
+        "Optimization status for the current objective.",
+        |value| value.try_into().unwrap()
+    }
+    impl_getter! {
+        obj_best,
+        f64,
+        MULTIOBJ,
+        MULTIOBJ_OBJBST,
+        "Best value for the current objective."
+    }
+    impl_getter! {
+        obj_bnd,
+        f64,
+        MULTIOBJ,
+        MULTIOBJ_OBJBND,
+        "Best bound for the current objective."
+    }
+    impl_getter! {
+        mip_gap,
+        f64,
+        MULTIOBJ,
+        MULTIOBJ_MIPGAP,
+        "MIP gap for the current objective."
+    }
+    impl_getter! {
+        iter_cnt,
+        f64,
+        MULTIOBJ,
+        MULTIOBJ_ITRCNT,
+        "Simplex iteration count for the current objective."
+    }
+    impl_getter! {
+        node_cnt,
+        f64,
+        MULTIOBJ,
+        MULTIOBJ_NODCNT,
+        "Explored node count for the current objective."
+    }
+    impl_getter! {
+        node_left,
+        f64,
+        MULTIOBJ,
+        MULTIOBJ_NODLFT,
+        "Unexplored node count for the current objective."
+    }
+
+    /// Retrieve the solution vector for the current objective.
+    ///
+    /// This queries the complete solution vector and returns the requested
+    /// variables in input order.
+    pub fn get_solution<I, V>(&self, vars: I) -> Result<Vec<f64>>
+    where
+        V: Borrow<Var>,
+        I: IntoIterator<Item = V>,
+    {
+        self.0.get_multiobj_solution(vars)
+    }
+}
+
 /// The argument given to callbacks.
 #[allow(missing_docs)]
 #[non_exhaustive]
@@ -517,6 +624,7 @@ pub enum Where<'a> {
     MIPNode(MIPNodeCtx<'a>),
     Message(MessageCtx<'a>),
     Barrier(BarrierCtx<'a>),
+    MultiObj(MultiObjCtx<'a>),
     IIS(IISCtx<'a>),
 }
 
@@ -532,6 +640,7 @@ impl Where<'_> {
             MIPSOL => Where::MIPSol(MIPSolCtx(ctx)),
             MESSAGE => Where::Message(MessageCtx(ctx)),
             BARRIER => Where::Barrier(BarrierCtx(ctx)),
+            MULTIOBJ => Where::MultiObj(MultiObjCtx(ctx)),
             IIS => Where::IIS(IISCtx(ctx)),
             _ => {
                 return Err(Error::NotYetSupported(format!("WHERE = {}", ctx.where_raw)));
@@ -652,6 +761,23 @@ impl<'a> CbCtx<'a> {
     /// Retrieve the elapsed solver runtime in seconds.
     pub fn get_runtime(&self) -> Result<f64> {
         self.get_double(self.where_raw, RUNTIME)
+    }
+
+    /// Retrieve the accumulated solver work in work units.
+    pub fn get_work(&self) -> Result<f64> {
+        self.get_double(self.where_raw, WORK)
+    }
+
+    /// Retrieve values from the solution vector reported at a multi-objective callback.
+    pub fn get_multiobj_solution<I, V>(&self, vars: I) -> Result<Vec<f64>>
+    where
+        V: Borrow<Var>,
+        I: IntoIterator<Item = V>,
+    {
+        let vals = self.get_double_array_vars(MULTIOBJ, MULTIOBJ_SOL)?;
+        vars.into_iter()
+            .map(|v| Ok(vals[self.model.get_index(v.borrow())? as usize]))
+            .collect()
     }
 
     /// Add a new cutting plane to the MIP model.
