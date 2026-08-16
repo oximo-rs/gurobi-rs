@@ -191,7 +191,7 @@ impl LinExpr {
     }
 
     /// Returns an iterator over the terms excluding the offset (item type is `(&Var, &f64)`)
-    pub fn iter_terms(&self) -> std::collections::hash_map::Iter<Var, f64> {
+    pub fn iter_terms(&self) -> std::collections::hash_map::Iter<'_, Var, f64> {
         self.coeff.iter()
     }
 
@@ -295,7 +295,7 @@ impl QuadExpr {
     }
 
     /// Returns an iterator over the terms excluding the offset (item type is `(&Var, &f64)`)
-    pub fn iter_terms(&self) -> std::collections::hash_map::Iter<Var, f64> {
+    pub fn iter_terms(&self) -> std::collections::hash_map::Iter<'_, Var, f64> {
         self.linexpr.iter_terms()
     }
 
@@ -305,7 +305,7 @@ impl QuadExpr {
     }
 
     /// Returns an iterator over the terms excluding the offset (item type is `(&Var, &f64)`)
-    pub fn iter_qterms(&self) -> std::collections::hash_map::Iter<(Var, Var), f64> {
+    pub fn iter_qterms(&self) -> std::collections::hash_map::Iter<'_, (Var, Var), f64> {
         self.qcoeffs.iter()
     }
 

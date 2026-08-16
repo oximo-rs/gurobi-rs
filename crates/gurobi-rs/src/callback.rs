@@ -118,6 +118,129 @@ use crate::{Error, Model, Result, Status, Var, INFINITY}; // used for setting a 
 /// [`std::error::Error`], so you can use the `?` operator on any error inside a callback.
 pub type CbResult = anyhow::Result<()>;
 
+/// A callback location understood by Gurobi's advanced callback registration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(i32)]
+pub enum CallbackLocation {
+    /// Periodic polling callback.
+    Polling = POLLING,
+    /// Presolve callback.
+    PreSolve = PRESOLVE,
+    /// Simplex callback.
+    Simplex = SIMPLEX,
+    /// MIP progress callback.
+    Mip = MIP,
+    /// New incumbent callback.
+    MipSol = MIPSOL,
+    /// MIP node callback.
+    MipNode = MIPNODE,
+    /// Log-message callback.
+    Message = MESSAGE,
+    /// Barrier callback.
+    Barrier = BARRIER,
+    /// Multi-objective callback.
+    MultiObj = MULTIOBJ,
+    /// IIS computation callback.
+    Iis = IIS,
+}
+
+/// A bit mask for Gurobi's advanced callback registration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct CallbackMask(u32);
+
+impl CallbackMask {
+    /// No callback locations.
+    pub const NONE: Self = Self(0);
+    /// All callback locations currently exposed by this crate.
+    pub const ALL: Self = Self((1 << (IIS + 1)) - 1);
+
+    /// Create a mask containing one callback location.
+    #[must_use]
+    pub const fn from_location(location: CallbackLocation) -> Self {
+        Self(1 << (location as u32))
+    }
+
+    /// Return the raw mask expected by Gurobi's C API.
+    #[must_use]
+    pub const fn bits(self) -> u32 {
+        self.0
+    }
+
+    /// Test whether this mask contains a callback location.
+    #[must_use]
+    pub const fn contains(self, location: CallbackLocation) -> bool {
+        self.0 & Self::from_location(location).0 != 0
+    }
+}
+
+impl From<CallbackLocation> for CallbackMask {
+    fn from(location: CallbackLocation) -> Self {
+        Self::from_location(location)
+    }
+}
+
+impl From<u32> for CallbackMask {
+    fn from(bits: u32) -> Self {
+        Self(bits)
+    }
+}
+
+impl std::ops::BitOr for CallbackMask {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self(self.0 | rhs.0)
+    }
+}
+
+impl std::ops::BitOrAssign for CallbackMask {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.0 |= rhs.0;
+    }
+}
+
+impl std::iter::FromIterator<CallbackLocation> for CallbackMask {
+    fn from_iter<T: IntoIterator<Item = CallbackLocation>>(iter: T) -> Self {
+        iter.into_iter()
+            .fold(Self::NONE, |mask, location| mask | location.into())
+    }
+}
+
+#[cfg(test)]
+mod mask_tests {
+    use super::*;
+
+    #[test]
+    fn mask_round_trips_locations_and_raw_bits() {
+        let mask: CallbackMask = [CallbackLocation::MipSol, CallbackLocation::Iis]
+            .into_iter()
+            .collect();
+        assert!(mask.contains(CallbackLocation::MipSol));
+        assert!(mask.contains(CallbackLocation::Iis));
+        assert!(!mask.contains(CallbackLocation::Mip));
+        assert_eq!(mask.bits(), (1 << MIPSOL) | (1 << IIS));
+        assert_eq!(CallbackMask::from(mask.bits()), mask);
+    }
+
+    #[test]
+    fn all_mask_covers_every_location() {
+        for location in [
+            CallbackLocation::Polling,
+            CallbackLocation::PreSolve,
+            CallbackLocation::Simplex,
+            CallbackLocation::Mip,
+            CallbackLocation::MipSol,
+            CallbackLocation::MipNode,
+            CallbackLocation::Message,
+            CallbackLocation::Barrier,
+            CallbackLocation::MultiObj,
+            CallbackLocation::Iis,
+        ] {
+            assert!(CallbackMask::ALL.contains(location));
+        }
+    }
+}
+
 /// A trait that allows structs to be used as a callback object
 ///
 /// # Examples

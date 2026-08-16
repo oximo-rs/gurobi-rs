@@ -98,6 +98,7 @@ impl DataType {
 
 #[derive(Hash, Debug, Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[allow(clippy::upper_case_acronyms)]
 enum ObjType {
     Model,
     Var,
@@ -268,7 +269,7 @@ mod param {
             if let Some(val) = meta.dtype.doc_description() {
                 writeln!(docstring, "- __Type:__ {val}")?;
             }
-            writeln!(docstring, "- __Default:__ {}", &meta.default)?;
+            writeln!(docstring, "- __Default:__ {}", meta.default)?;
             if let Some(val) = &meta.min {
                 writeln!(docstring, "- __Minimum:__ {val}")?;
             }
@@ -279,7 +280,7 @@ mod param {
             docstring.push_str("\n\n");
             docstring.push_str(&body);
             docstring.push_str("\n\n");
-            writeln!(docstring, "[Reference manual]({}).", &meta.url)?;
+            writeln!(docstring, "[Reference manual]({}).", meta.url)?;
             Ok(docstring)
         } else {
             // body?;
@@ -412,7 +413,7 @@ mod attrs {
             docstring.push_str("\n\n");
             docstring.push_str(&body);
             docstring.push_str("\n\n");
-            writeln!(docstring, "[Reference manual]({}).", &meta.url)?;
+            writeln!(docstring, "[Reference manual]({}).", meta.url)?;
             Ok(docstring)
         } else {
             // body?;

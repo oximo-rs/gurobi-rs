@@ -46,7 +46,7 @@ use private::*;
 pub trait StringLike: Into<Vec<u8>> {}
 
 impl StringLike for String {}
-impl<'a> StringLike for &'a str {}
+impl StringLike for &str {}
 
 /// A queryable [`ModelObject`] attribute (eg [`Var`] or [`Constr`])
 pub trait ObjAttrGet<O, V> {

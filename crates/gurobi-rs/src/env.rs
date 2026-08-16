@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::ffi::CString;
 use std::ptr::null_mut;
 use std::rc::Rc;
@@ -93,7 +94,7 @@ impl EmptyEnv {
 }
 
 impl Env {
-    thread_local!(pub(crate) static DEFAULT_ENV : Env = Env::new("gurobi.log").unwrap());
+    thread_local!(pub(crate) static DEFAULT_ENV: RefCell<Option<Env>> = const { RefCell::new(None) });
 
     pub(crate) fn is_shared(&self) -> bool {
         Rc::strong_count(&self.user_allocated) > 1 || Rc::weak_count(&self.user_allocated) > 0

@@ -364,7 +364,17 @@ impl Model {
 
     /// Create a new model with the default environment, which is lazily initialised.
     pub fn new(modelname: &str) -> Result<Model> {
-        Env::DEFAULT_ENV.with(|env| Model::with_env(modelname, env))
+        Self::with_default_env(|env| Self::with_env(modelname, env))
+    }
+
+    fn with_default_env<T>(f: impl FnOnce(&Env) -> Result<T>) -> Result<T> {
+        Env::DEFAULT_ENV.with(|slot| {
+            let mut slot = slot.borrow_mut();
+            if slot.is_none() {
+                *slot = Some(Env::new("gurobi.log")?);
+            }
+            f(slot.as_ref().expect("default environment was just initialized"))
+        })
     }
 
     /// Create a copy of the model.  This method is fallible due to the lazy update approach and the underlying
@@ -397,7 +407,7 @@ impl Model {
 
     /// Read a model from a file using the default `Env`.
     pub fn from_file(filename: impl AsRef<Path>) -> Result<Model> {
-        Env::DEFAULT_ENV.with(|env| Model::from_file_with_env(filename, env))
+        Self::with_default_env(|env| Self::from_file_with_env(filename, env))
     }
 
     /// Read a model from a file. See the [manual](https://docs.gurobi.com/projects/optimizer/en/current/reference/) for accepted file formats.
@@ -507,9 +517,12 @@ impl Model {
                     transmute(&mut usrdata),
                 ))
                 .and_then(|()| self.check_apicall(gurobi_routine(self.ptr)));
-            self.check_apicall(ffi::GRBsetcallbackfunc(self.ptr, None, null_mut()))
-                .expect("failed to clear callback function");
-            res
+            let clear = self.check_apicall(ffi::GRBsetcallbackfunc(self.ptr, None, null_mut()));
+            match (res, clear) {
+                (Err(error), _) => Err(error),
+                (Ok(()), Err(error)) => Err(error),
+                (Ok(()), Ok(())) => Ok(()),
+            }
         }
     }
 
@@ -524,8 +537,6 @@ impl Model {
     /// implement the `Callback` trait automatically.   This method will always trigger a [`Model::update`].
     /// See [`crate::callback`] for details on how to use callbacks.
     ///
-    /// # Panics
-    /// This function panics if Gurobi errors on clearing the callback.
     pub fn optimize_with_callback<F>(&mut self, callback: &mut F) -> Result<()>
     where
         F: Callback,
@@ -540,11 +551,12 @@ impl Model {
     pub fn optimize_with_callback_filtered<F>(
         &mut self,
         callback: &mut F,
-        wheres: u32,
+        wheres: impl Into<crate::callback::CallbackMask>,
     ) -> Result<()>
     where
         F: Callback,
     {
+        let wheres = wheres.into().bits();
         self.call_with_callback_impl(ffi::GRBoptimize, callback, move |ptr, cb, ud| unsafe {
             ffi::GRBsetcallbackfuncadv(ptr, cb, ud, wheres)
         })
@@ -586,6 +598,22 @@ impl Model {
         F: Callback,
     {
         self.call_with_callback(ffi::GRBcomputeIIS, callback)
+    }
+
+    /// (Gurobi 13+) Compute an IIS with callbacks restricted to the selected locations.
+    #[cfg(feature = "gurobi13")]
+    pub fn compute_iis_with_callback_filtered<F>(
+        &mut self,
+        callback: &mut F,
+        wheres: impl Into<crate::callback::CallbackMask>,
+    ) -> Result<()>
+    where
+        F: Callback,
+    {
+        let wheres = wheres.into().bits();
+        self.call_with_callback_impl(ffi::GRBcomputeIIS, callback, move |ptr, cb, ud| unsafe {
+            ffi::GRBsetcallbackfuncadv(ptr, cb, ud, wheres)
+        })
     }
 
     /// Send a request to the model to terminate the current optimization process.
@@ -2255,7 +2283,7 @@ impl AsyncModel {
     ///
     /// # Errors
     /// An `gurobi_rs::Error::FromAPI` may occur.  In this case, the `Err` variant contains this error
-    /// and gives back ownership of this `AsyncModel`.
+    /// and gives back ownership of this `AsyncModel` in a `Box`.
     ///
     /// # Examples
     /// ```
@@ -2279,13 +2307,13 @@ impl AsyncModel {
     /// let m: Model = m.into(); // get original Model back
     /// # Ok::<(), gurobi_rs::Error>(())
     /// ```
-    pub fn optimize(mut self) -> std::result::Result<AsyncHandle, (Self, Error)> {
+    pub fn optimize(mut self) -> std::result::Result<AsyncHandle, (Box<Self>, Error)> {
         match self.0.update().and_then(|()| {
             self.0
                 .check_apicall(unsafe { ffi::GRBoptimizeasync(self.0.ptr) })
         }) {
             Ok(()) => Ok(AsyncHandle(self.0)),
-            Err(e) => Err((self, e)),
+            Err(e) => Err((Box::new(self), e)),
         }
     }
 }
