@@ -1837,6 +1837,12 @@ impl Model {
         )
     }
 
+    /// Return the model-local index of a variable for APIs that encode
+    /// variables numerically, such as a nonlinear expression tree.
+    pub fn var_index(&self, var: &Var) -> Result<i32> {
+        self.get_index_build(var)
+    }
+
     /// Set a model parameter.  Parameters (objects with the `Param` trait) can be found in the [`param`] module.
     ///
     /// # Example
