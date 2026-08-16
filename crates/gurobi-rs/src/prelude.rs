@@ -1,6 +1,24 @@
 //! Most commonly used items from this crate bundled for convenient import.
 
 pub use crate::{
+    Constr,
+    ConstrSense,
+    // ----------
+    Env,
+    GenConstr,
+    INFINITY,
+    Model,
+    ModelObject,
+    ModelSense,
+    QConstr,
+    RelaxType,
+    SOS,
+    SOSType,
+    Status,
+    Var,
+    VarSpec,
+    // constants
+    VarType,
     add_binvar,
     // proc macros
     add_ctsvar,
@@ -12,24 +30,6 @@ pub use crate::{
     constants::Norm,
     expr::{AttachModel, Expr, GurobiSum},
     param,
-    Constr,
-    ConstrSense,
-    // ----------
-    Env,
-    GenConstr,
-    Model,
-    ModelObject,
-    ModelSense,
-    QConstr,
-    RelaxType,
-    SOSType,
-    Status,
-    Var,
-    VarSpec,
-    // constants
-    VarType,
-    INFINITY,
-    SOS,
 };
 
 #[cfg(feature = "gurobi13")]

@@ -14,7 +14,7 @@ use cstr_enum::AsCStr;
 use crate::ffi;
 use crate::ffi::{c_char, c_int};
 use crate::model_object::*;
-use crate::util::{copy_c_str, AsPtr};
+use crate::util::{AsPtr, copy_c_str};
 use crate::{ConstrSense, Model, ModelSense, Result, Status, VarType};
 
 #[allow(missing_docs)]

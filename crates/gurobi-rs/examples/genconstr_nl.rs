@@ -15,8 +15,8 @@
 //!   node 3  SQUARE       parent = 0
 //!   node 4  VARIABLE x   parent = 3
 
-use gurobi_rs::prelude::*;
 use gurobi_rs::Opcode;
+use gurobi_rs::prelude::*;
 
 fn main() -> gurobi_rs::Result<()> {
     let mut model = Model::new("nl_expr_tree")?;

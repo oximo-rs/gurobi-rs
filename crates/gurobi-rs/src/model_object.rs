@@ -2,8 +2,8 @@ use fnv::FnvHashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
-use crate::ffi;
 use crate::Model;
+use crate::ffi;
 use crate::{Error, Result};
 
 mod private_traits {

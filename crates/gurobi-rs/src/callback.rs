@@ -105,11 +105,11 @@ use std::iter::{IntoIterator, Iterator};
 use std::os::raw;
 use std::ptr::null;
 
-use crate::constants::{callback::*, ERROR_CALLBACK, GRB_UNDEFINED};
+use crate::constants::{ERROR_CALLBACK, GRB_UNDEFINED, callback::*};
 use crate::constr::IneqExpr;
 use crate::ffi;
 use crate::util::{self, AsPtr};
-use crate::{Error, Model, Result, Status, Var, INFINITY}; // used for setting a partial solution in a callback
+use crate::{Error, INFINITY, Model, Result, Status, Var}; // used for setting a partial solution in a callback
 
 /// The return type for callbacks, an alias of [`anyhow::Result`].
 ///
@@ -235,8 +235,7 @@ mod mask_tests {
         assert_eq!(mask.bits(), (1 << MIPSOL) | (1 << IIS));
         assert_eq!(CallbackMask::from(mask.bits()), mask);
 
-        let mut ergonomic = CallbackMask::from(CallbackLocation::MipSol)
-            | CallbackLocation::Iis;
+        let mut ergonomic = CallbackMask::from(CallbackLocation::MipSol) | CallbackLocation::Iis;
         ergonomic |= CallbackLocation::Mip;
         assert_eq!(ergonomic, mask | CallbackLocation::Mip);
     }
@@ -338,7 +337,7 @@ pub(crate) extern "C" fn callback_wrapper(
     where_: ffi::c_int,
     usrdata: *mut ffi::c_void,
 ) -> ffi::c_int {
-    use std::panic::{catch_unwind, AssertUnwindSafe};
+    use std::panic::{AssertUnwindSafe, catch_unwind};
     let u = unsafe { &mut *usrdata.cast::<UserCallbackData>() };
     let (cb_obj, model, nvars) = (&mut u.cb_obj, u.model, u.nvars);
     let where_ = Where::new(CbCtx::new(cbdata, where_, model, nvars));
@@ -634,11 +633,7 @@ impl<'a> BarrierCtx<'a> {
 }
 
 fn negative_int_to_none(val: i32) -> Option<u32> {
-    if val < 0 {
-        None
-    } else {
-        Some(val as u32)
-    }
+    if val < 0 { None } else { Some(val as u32) }
 }
 
 /// Callback context object during [`IIS`](https://docs.gurobi.com/projects/optimizer/en/current/reference/).

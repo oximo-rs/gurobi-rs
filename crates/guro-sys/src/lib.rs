@@ -879,7 +879,7 @@ unsafe extern "C" {
     ) -> c_int;
 
     pub fn GRBcbget(cbdata: *mut c_void, where_: c_int, what: c_int, resultP: *mut c_void)
-        -> c_int;
+    -> c_int;
 
     pub fn GRBversion(majorP: *mut c_int, minorP: *mut c_int, technicalP: *mut c_int);
 }

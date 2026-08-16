@@ -69,14 +69,16 @@ fn main() -> gurobi_rs::Result<()> {
 
                     if nodcnt - lastnode >= 100.0 {
                         lastnode = nodcnt;
-                        println!("@MIP: nodcnt={}, actnodes={}, itrcnt={}, objbst={}, objbnd={}, solcnt={}, cutcnt={}.",
-                     nodcnt,
-                     ctx.node_left()?,
-                     ctx.iter_cnt()?,
-                     objbst,
-                     objbnd,
-                     solcnt,
-                     ctx.cut_cnt()?);
+                        println!(
+                            "@MIP: nodcnt={}, actnodes={}, itrcnt={}, objbst={}, objbnd={}, solcnt={}, cutcnt={}.",
+                            nodcnt,
+                            ctx.node_left()?,
+                            ctx.iter_cnt()?,
+                            objbst,
+                            objbnd,
+                            solcnt,
+                            ctx.cut_cnt()?
+                        );
                     }
 
                     if (objbst - objbnd).abs() < 0.1 * (1.0 + objbst.abs()) {
@@ -118,13 +120,15 @@ fn main() -> gurobi_rs::Result<()> {
 
                 // Currently in barrier
                 Barrier(ctx) => {
-                    println!("@Barrier: itrcnt={}, primobj={}, dualobj={}, priminf={}, dualinf={}, compl={}.",
-                   ctx.iter_cnt()?,
-                   ctx.prim_obj()?,
-                   ctx.dual_obj()?,
-                   ctx.prim_inf()?,
-                   ctx.dual_inf()?,
-                   ctx.compl_viol()?);
+                    println!(
+                        "@Barrier: itrcnt={}, primobj={}, dualobj={}, priminf={}, dualinf={}, compl={}.",
+                        ctx.iter_cnt()?,
+                        ctx.prim_obj()?,
+                        ctx.dual_obj()?,
+                        ctx.prim_inf()?,
+                        ctx.dual_inf()?,
+                        ctx.compl_viol()?
+                    );
                 }
 
                 // Printing a log message

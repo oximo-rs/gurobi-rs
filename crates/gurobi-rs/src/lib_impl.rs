@@ -141,21 +141,21 @@ pub mod prelude;
 // Public re-exports
 #[doc(no_inline)]
 pub use attribute::attr;
-pub use expr::Expr;
 #[doc(hidden)]
 pub use expr::__into_expr;
+pub use expr::Expr;
 #[doc(no_inline)]
 pub use parameter::param;
 
 // private modules and their re-exports
 #[path = "constants.rs"]
 pub(crate) mod constants;
-pub use constants::{
-    ConstrSense, GenConstrType, ModelSense, Opcode, RelaxType, SOSType, Status, VarType,
-    GRB_INFINITY as INFINITY,
-};
 #[cfg(feature = "gurobi13")]
 pub use constants::GRB_METHOD_PDHG;
+pub use constants::{
+    ConstrSense, GRB_INFINITY as INFINITY, GenConstrType, ModelSense, Opcode, RelaxType, SOSType,
+    Status, VarType,
+};
 
 #[path = "env.rs"]
 mod env;
@@ -171,7 +171,7 @@ pub use model::{AsyncHandle, AsyncModel, Model, VarSpec};
 
 #[path = "model_object.rs"]
 pub(crate) mod model_object;
-pub use model_object::{Constr, GenConstr, ModelObject, QConstr, Var, SOS};
+pub use model_object::{Constr, GenConstr, ModelObject, QConstr, SOS, Var};
 
 #[path = "util.rs"]
 pub(crate) mod util;

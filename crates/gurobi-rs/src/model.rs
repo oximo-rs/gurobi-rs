@@ -6,7 +6,7 @@ use std::ptr::{null, null_mut};
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::attribute::{ModelAttrGet, ModelAttrSet, ObjAttrGet, ObjAttrSet};
-use crate::callback::{callback_wrapper, UserCallbackData};
+use crate::callback::{UserCallbackData, callback_wrapper};
 use crate::constr::{IneqExpr, RangeExpr};
 use crate::expr::{LinExpr, QuadExpr};
 use crate::ffi;
@@ -373,7 +373,9 @@ impl Model {
             if slot.is_none() {
                 *slot = Some(Env::new("gurobi.log")?);
             }
-            f(slot.as_ref().expect("default environment was just initialized"))
+            f(slot
+                .as_ref()
+                .expect("default environment was just initialized"))
         })
     }
 
@@ -497,7 +499,14 @@ impl Model {
         F: Callback,
         R: Fn(
             *mut ffi::GRBmodel,
-            Option<extern "C" fn(*mut ffi::GRBmodel, *mut ffi::c_void, c_int, *mut ffi::c_void) -> c_int>,
+            Option<
+                extern "C" fn(
+                    *mut ffi::GRBmodel,
+                    *mut ffi::c_void,
+                    c_int,
+                    *mut ffi::c_void,
+                ) -> c_int,
+            >,
             *mut ffi::c_void,
         ) -> c_int,
     {

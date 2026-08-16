@@ -5,8 +5,8 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::fmt;
 use std::fmt::Write;
 use std::hash::Hash;
@@ -300,11 +300,7 @@ mod param {
         }
     }
 
-    fn gen_type(
-        ts: &mut TokenStream,
-        ident: &Ident,
-        members: &[EnumMember],
-    ) -> anyhow::Result<()> {
+    fn gen_type(ts: &mut TokenStream, ident: &Ident, members: &[EnumMember]) -> anyhow::Result<()> {
         let members = members.iter().map(gen_variant);
 
         let decl = quote! {

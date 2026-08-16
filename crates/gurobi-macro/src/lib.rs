@@ -1,6 +1,6 @@
 //! See the [`gurobi-rs`](https://docs.rs/gurobi-rs) crate for documentation.
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2, TokenTree};
-use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::{Error, Expr, Result, Token};
@@ -88,7 +88,7 @@ impl Parse for GrbRangeExpr {
                 return Err(Error::new_spanned(
                     dde,
                     "Use '..' for bounds and range constraints",
-                ))
+                ));
             }
         }
         Ok(GrbRangeExpr {
@@ -360,13 +360,21 @@ macro_rules! specialised_addvar {
     };
 }
 
-specialised_addvar!(AddBinVarInput, quote! { gurobi_rs::VarType::Binary }, add_binvar);
+specialised_addvar!(
+    AddBinVarInput,
+    quote! { gurobi_rs::VarType::Binary },
+    add_binvar
+);
 specialised_addvar!(
     AddCtsVarInput,
     quote! { gurobi_rs::VarType::Continuous },
     add_ctsvar
 );
-specialised_addvar!(AddIntVarInput, quote! { gurobi_rs::VarType::Integer }, add_intvar);
+specialised_addvar!(
+    AddIntVarInput,
+    quote! { gurobi_rs::VarType::Integer },
+    add_intvar
+);
 
 #[proc_macro]
 pub fn add_var(expr: proc_macro::TokenStream) -> proc_macro::TokenStream {

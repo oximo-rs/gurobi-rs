@@ -4,10 +4,10 @@
 //! of parameters and their uses.
 use std::ffi::{CStr, CString};
 
-use crate::ffi;
-use crate::util::{copy_c_str, AsPtr};
 use crate::Env;
 use crate::Result;
+use crate::ffi;
+use crate::util::{AsPtr, copy_c_str};
 
 #[allow(missing_docs)]
 mod param_enums {

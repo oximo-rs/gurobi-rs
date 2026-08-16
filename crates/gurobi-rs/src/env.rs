@@ -203,7 +203,7 @@ fn get_error_msg(env: *mut ffi::GRBenv) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{param, Model};
+    use crate::{Model, param};
 
     #[test]
     fn param_get_set() {

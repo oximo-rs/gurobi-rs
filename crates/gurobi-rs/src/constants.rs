@@ -131,7 +131,7 @@ impl TryFrom<c_char> for VarType {
             _ => {
                 return Err(format!(
                     "unexpected value {ch:?} when converting to VarType"
-                ))
+                ));
             }
         };
         Ok(vt)
@@ -161,7 +161,7 @@ impl TryFrom<c_char> for ConstrSense {
             _ => {
                 return Err(format!(
                     "unexpected value {ch:?} when converting to ConstrSense"
-                ))
+                ));
             }
         };
         Ok(vt)
