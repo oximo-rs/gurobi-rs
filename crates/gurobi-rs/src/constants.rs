@@ -245,6 +245,10 @@ pub enum Status {
     /// User specified an objective limit (a bound on either the best objective or the best bound), and that
     /// limit has been reached.
     UserObjLimit,
+    /// Optimization terminated because the work expended exceeded the value specified in the `WorkLimit` parameter.
+    WorkLimit,
+    /// Optimization terminated because the allocated memory exceeded the value specified in the `MemLimit` parameter.
+    MemLimit,
     /// (Gurobi 13+) A feasible solution was found at a local optimum by the nonlinear barrier solver.
     #[cfg(feature = "gurobi13")]
     LocallyOptimal,
@@ -256,12 +260,30 @@ pub enum Status {
 impl TryFrom<i32> for Status {
     type Error = String;
     fn try_from(val: i32) -> std::result::Result<Status, String> {
-        let max = if cfg!(feature = "gurobi13") { 17 } else { 15 };
+        let max = if cfg!(feature = "gurobi13") { 19 } else { 17 };
         if (1..=max).contains(&val) {
             Ok(unsafe { std::mem::transmute::<i32, Status>(val) })
         } else {
             Err(format!("Invalid Status value, should be in [1,{max}]"))
         }
+    }
+}
+
+#[cfg(test)]
+mod status_tests {
+    use super::Status;
+
+    #[test]
+    fn limit_status_codes_match_the_c_api() {
+        assert_eq!(Status::try_from(16), Ok(Status::WorkLimit));
+        assert_eq!(Status::try_from(17), Ok(Status::MemLimit));
+    }
+
+    #[cfg(feature = "gurobi13")]
+    #[test]
+    fn gurobi_13_local_status_codes_match_the_c_api() {
+        assert_eq!(Status::try_from(18), Ok(Status::LocallyOptimal));
+        assert_eq!(Status::try_from(19), Ok(Status::LocallyInfeasible));
     }
 }
 
