@@ -193,16 +193,30 @@ impl std::ops::BitOr for CallbackMask {
     }
 }
 
+impl std::ops::BitOr<CallbackLocation> for CallbackMask {
+    type Output = Self;
+
+    fn bitor(self, rhs: CallbackLocation) -> Self::Output {
+        self | Self::from(rhs)
+    }
+}
+
 impl std::ops::BitOrAssign for CallbackMask {
     fn bitor_assign(&mut self, rhs: Self) {
         self.0 |= rhs.0;
     }
 }
 
+impl std::ops::BitOrAssign<CallbackLocation> for CallbackMask {
+    fn bitor_assign(&mut self, rhs: CallbackLocation) {
+        *self |= Self::from(rhs);
+    }
+}
+
 impl std::iter::FromIterator<CallbackLocation> for CallbackMask {
     fn from_iter<T: IntoIterator<Item = CallbackLocation>>(iter: T) -> Self {
         iter.into_iter()
-            .fold(Self::NONE, |mask, location| mask | location.into())
+            .fold(Self::NONE, |mask, location| mask | location)
     }
 }
 
@@ -220,6 +234,11 @@ mod mask_tests {
         assert!(!mask.contains(CallbackLocation::Mip));
         assert_eq!(mask.bits(), (1 << MIPSOL) | (1 << IIS));
         assert_eq!(CallbackMask::from(mask.bits()), mask);
+
+        let mut ergonomic = CallbackMask::from(CallbackLocation::MipSol)
+            | CallbackLocation::Iis;
+        ergonomic |= CallbackLocation::Mip;
+        assert_eq!(ergonomic, mask | CallbackLocation::Mip);
     }
 
     #[test]
