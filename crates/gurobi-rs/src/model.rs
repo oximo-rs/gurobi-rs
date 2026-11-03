@@ -5,6 +5,8 @@ use std::path::Path;
 use std::ptr::{null, null_mut};
 use std::sync::atomic::{AtomicU32, Ordering};
 
+use fnv::FnvHashMap;
+
 use crate::attribute::{ModelAttrGet, ModelAttrSet, ObjAttrGet, ObjAttrSet};
 use crate::callback::{UserCallbackData, callback_wrapper};
 use crate::constr::{IneqExpr, RangeExpr};
@@ -230,6 +232,32 @@ impl Model {
         }
 
         Ok((ov, tv))
+    }
+
+    fn push_sparse_row<L>(
+        &self,
+        linear: L,
+        cbeg: &mut Vec<ffi::c_int>,
+        cind: &mut Vec<ffi::c_int>,
+        cval: &mut Vec<f64>,
+        positions: &mut FnvHashMap<ffi::c_int, usize>,
+    ) -> Result<()>
+    where
+        L: IntoIterator<Item = (Var, f64)>,
+    {
+        cbeg.push(Self::sparse_count(cind.len())?);
+        positions.clear();
+        for (var, coeff) in linear {
+            let index = self.get_index_build(&var)?;
+            if let Some(&position) = positions.get(&index) {
+                cval[position] += coeff;
+            } else {
+                positions.insert(index, cind.len());
+                cind.push(index);
+                cval.push(coeff);
+            }
+        }
+        Ok(())
     }
 
     #[inline]
@@ -946,6 +974,99 @@ impl Model {
             .collect())
     }
 
+    /// Add multiple linear constraints without constructing [`LinExpr`] coefficient maps.
+    ///
+    /// Each item is `(name, linear_terms, constant, sense, rhs)` and describes
+    /// `constant + sum(coeff * var) sense rhs`. The `linear_terms` iterable
+    /// contains `(variable, coefficient)` pairs. Duplicate variables are additive.
+    ///
+    /// All names and variable handles are validated before the native API call.
+    ///
+    /// # Examples
+    /// ```
+    /// # use gurobi_rs::prelude::*;
+    /// let mut m = Model::new("model")?;
+    /// let x = add_ctsvar!(m)?;
+    /// let y = add_ctsvar!(m)?;
+    ///
+    /// let constraints = [
+    ///     (&"c1", [(x, 1.0), (y, -1.0)], 0.0, ConstrSense::Less, 1.0),
+    ///     (&"c2", [(x, 2.0), (y, 1.0)], 3.0, ConstrSense::Equal, 0.0),
+    /// ];
+    /// m.add_constrs_sparse(constraints)?;
+    /// # Ok::<(), gurobi_rs::Error>(())
+    /// ```
+    ///
+    /// # Errors
+    /// - [`Error::NulError`] if a name cannot be converted to a C-string.
+    /// - [`Error::ModelObjectPending`] if some variables haven't yet been added to the model.
+    /// - [`Error::ModelObjectRemoved`] if some variables have been removed from the model.
+    /// - [`Error::ModelObjectMismatch`] if some variables are from a different model.
+    /// - [`Error::AlgebraicError`] if the row or non-zero counts exceed the C API range.
+    /// - [`Error::FromAPI`] if a Gurobi API error occurs.
+    pub fn add_constrs_sparse<'a, I, N, L>(&mut self, constrs_with_names: I) -> Result<Vec<Constr>>
+    where
+        I: IntoIterator<Item = (&'a N, L, f64, ConstrSense, f64)>,
+        N: AsRef<str> + 'a,
+        L: IntoIterator<Item = (Var, f64)>,
+    {
+        let constrs_with_names = constrs_with_names.into_iter();
+        let (nconstr, _) = constrs_with_names.size_hint();
+        let mut names = Vec::with_capacity(nconstr); // needed to ensure CString lives long enough
+        let mut cnames = Vec::with_capacity(nconstr);
+        let mut rhs = Vec::with_capacity(nconstr);
+        let mut cbeg = Vec::with_capacity(nconstr);
+        let mut cind = Vec::new();
+        let mut cval = Vec::new();
+        let mut senses = Vec::with_capacity(nconstr);
+        let mut positions = FnvHashMap::default();
+
+        for (n, linear, constant, sense, r) in constrs_with_names {
+            let n = CString::new(n.as_ref())?;
+            cnames.push(n.as_ptr());
+            names.push(n);
+            rhs.push(r - constant);
+            senses.push(sense as ffi::c_char);
+
+            self.push_sparse_row(linear, &mut cbeg, &mut cind, &mut cval, &mut positions)?;
+        }
+
+        if cnames.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let nconstr = Self::sparse_count(cnames.len())?;
+        let numnz = Self::sparse_count(cind.len())?;
+        let cind_ptr = if cind.is_empty() {
+            std::ptr::null()
+        } else {
+            cind.as_ptr()
+        };
+        let cval_ptr = if cval.is_empty() {
+            std::ptr::null()
+        } else {
+            cval.as_ptr()
+        };
+        self.check_apicall(unsafe {
+            ffi::GRBaddconstrs(
+                self.ptr,
+                nconstr,
+                numnz,
+                cbeg.as_ptr(),
+                cind_ptr,
+                cval_ptr,
+                senses.as_ptr(),
+                rhs.as_ptr(),
+                cnames.as_ptr(),
+            )
+        })?;
+
+        let lazy = self.update_mode_lazy()?;
+        Ok((0..cnames.len())
+            .map(|_| self.constrs.add_new(lazy))
+            .collect())
+    }
+
     /// Add a MIN constraint to the model.
     ///
     /// A MIN constraint $r = \min\{x_1,\ldots,x_n,c\}$ states that
@@ -1556,6 +1677,106 @@ impl Model {
                 cbeg.as_ptr(),
                 cind.as_ptr(),
                 cval.as_ptr(),
+                lbs.as_ptr(),
+                ubs.as_ptr(),
+                cnames.as_ptr(),
+            )
+        })?;
+
+        let ncons = names.len();
+        let lazy = self.update_mode_lazy()?;
+        let vars = (0..ncons).map(|_| self.vars.add_new(lazy)).collect();
+        let cons = (0..ncons).map(|_| self.constrs.add_new(lazy)).collect();
+        Ok((vars, cons))
+    }
+
+    /// Add multiple range constraints without constructing [`LinExpr`] coefficient maps.
+    ///
+    /// Each item is `(name, linear_terms, constant, lower, upper)` and describes
+    /// `lower <= constant + sum(coeff * var) <= upper`. The `linear_terms` iterable
+    /// contains `(variable, coefficient)` pairs. Duplicate variables are additive.
+    ///
+    /// As with [`Model::add_ranges`], each range adds a decision variable and an
+    /// equality constraint. The returned vectors follow the input order.
+    ///
+    /// All names and variable handles are validated before the native API call.
+    ///
+    /// # Examples
+    /// ```
+    /// # use gurobi_rs::prelude::*;
+    /// let mut m = Model::new("model")?;
+    /// let x = add_ctsvar!(m)?;
+    /// let y = add_ctsvar!(m)?;
+    ///
+    /// let ranges = [
+    ///     (&"r1", [(x, 1.0), (y, -1.0)], 0.0, 0.0, 1.0),
+    ///     (&"r2", [(x, 2.0), (y, 1.0)], -3.0, 1.0, 4.0),
+    /// ];
+    /// m.add_ranges_sparse(ranges)?;
+    /// # Ok::<(), gurobi_rs::Error>(())
+    /// ```
+    ///
+    /// # Errors
+    /// - [`Error::NulError`] if a name cannot be converted to a C-string.
+    /// - [`Error::ModelObjectPending`] if some variables haven't yet been added to the model.
+    /// - [`Error::ModelObjectRemoved`] if some variables have been removed from the model.
+    /// - [`Error::ModelObjectMismatch`] if some variables are from a different model.
+    /// - [`Error::AlgebraicError`] if the row or non-zero counts exceed the C API range.
+    /// - [`Error::FromAPI`] if a Gurobi API error occurs.
+    pub fn add_ranges_sparse<'a, I, N, L>(
+        &mut self,
+        ranges_with_names: I,
+    ) -> Result<(Vec<Var>, Vec<Constr>)>
+    where
+        I: IntoIterator<Item = (&'a N, L, f64, f64, f64)>,
+        N: AsRef<str> + 'a,
+        L: IntoIterator<Item = (Var, f64)>,
+    {
+        let ranges_with_names = ranges_with_names.into_iter();
+        let (nconstr, _) = ranges_with_names.size_hint();
+        let mut names = Vec::with_capacity(nconstr); // needed to ensure CString lives long enough
+        let mut cnames = Vec::with_capacity(nconstr);
+        let mut ubs = Vec::with_capacity(nconstr);
+        let mut lbs = Vec::with_capacity(nconstr);
+        let mut cbeg = Vec::with_capacity(nconstr);
+        let mut cind = Vec::new();
+        let mut cval = Vec::new();
+        let mut positions = FnvHashMap::default();
+
+        for (n, linear, constant, lb, ub) in ranges_with_names {
+            let n = CString::new(n.as_ref())?;
+            cnames.push(n.as_ptr());
+            names.push(n);
+            lbs.push(lb - constant);
+            ubs.push(ub - constant);
+
+            self.push_sparse_row(linear, &mut cbeg, &mut cind, &mut cval, &mut positions)?;
+        }
+
+        if cnames.is_empty() {
+            return Ok((Vec::new(), Vec::new()));
+        }
+
+        let nconstr = Self::sparse_count(cnames.len())?;
+        let numnz = Self::sparse_count(cind.len())?;
+        let cind_ptr = if cind.is_empty() {
+            std::ptr::null()
+        } else {
+            cind.as_ptr()
+        };
+        let cval_ptr = if cval.is_empty() {
+            std::ptr::null()
+        } else {
+            cval.as_ptr()
+        };
+        self.check_apicall(unsafe {
+            ffi::GRBaddrangeconstrs(
+                self.ptr,
+                nconstr,
+                numnz,
+                cbeg.as_ptr(),
+                cind_ptr,
+                cval_ptr,
                 lbs.as_ptr(),
                 ubs.as_ptr(),
                 cnames.as_ptr(),
