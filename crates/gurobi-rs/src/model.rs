@@ -1955,7 +1955,7 @@ impl Model {
         } else {
             let qexpr = expr.into_quadexpr();
             let (qrow, qcol, qval) = self.get_qcoeffs_indices_build(&qexpr)?;
-            self.add_qpterms(&qrow, &qcol, &qval)?;
+            self.add_qpterms_indices(&qrow, &qcol, &qval)?;
             let (_, expr) = qexpr.into_parts();
             expr
         };
@@ -1977,6 +1977,7 @@ impl Model {
     /// Duplicates are additive and omitted linear and quadratic coefficients are
     /// cleared. Like [`Self::set_objective`], this first updates pending objects.
     /// All handles and coefficient counts are validated before replacing values.
+    /// Use [`Self::add_qpterms`] to add quadratic terms incrementally instead.
     ///
     /// # Errors
     /// Returns handle ownership/state errors, coefficient counts exceeding the
@@ -2001,7 +2002,7 @@ impl Model {
         Self::sparse_count(qval.len())?;
         self.del_qpterms()?;
         if !qval.is_empty() {
-            self.add_qpterms(&qrow, &qcol, &qval)?;
+            self.add_qpterms_indices(&qrow, &qcol, &qval)?;
         }
 
         if nvars != 0 {
@@ -2012,6 +2013,38 @@ impl Model {
 
         self.set_attr(attr::ObjCon, constant)?;
         self.set_attr(attr::ModelSense, sense)
+    }
+
+    /// Add `sum(q*x*y)` to the quadratic objective, using polynomial coefficients.
+    /// Terms are additive: duplicate pairs are summed, and `(x, y)` and `(y, x)`
+    /// are equivalent. Linear coefficients, `ObjCon`, and `ModelSense` are preserved.
+    /// Like [`Self::set_objective_sparse`], this first updates pending objects,
+    /// then validates all handles and the term count before adding any terms.
+    /// Empty input succeeds without adding terms.
+    ///
+    /// # Errors
+    /// Returns [`Error::ModelObjectMismatch`] for foreign variables,
+    /// [`Error::ModelObjectRemoved`] for removed variables, [`Error::AlgebraicError`]
+    /// for a term count exceeding the C API range, or [`Error::FromAPI`] for native
+    /// Gurobi errors. A native error may leave partial edits.
+    pub fn add_qpterms(&mut self, terms: impl IntoIterator<Item = (Var, Var, f64)>) -> Result<()> {
+        self.update()?;
+        let (qrow, qcol, qval) = self.build_idx_arrays_obj_obj(terms.into_iter())?;
+        Self::sparse_count(qval.len())?;
+        if qval.is_empty() {
+            return Ok(());
+        }
+        self.add_qpterms_indices(&qrow, &qcol, &qval)
+    }
+
+    /// Remove all quadratic objective terms using Gurobi's `GRBdelq`.
+    /// Linear coefficients, `ObjCon`, and `ModelSense` are preserved.
+    /// Succeeds as a no-op if the objective has no quadratic terms.
+    ///
+    /// # Errors
+    /// Returns [`Error::FromAPI`] if a native Gurobi API error occurs.
+    pub fn del_qpterms(&mut self) -> Result<()> {
+        self.check_apicall(unsafe { ffi::GRBdelq(self.ptr) })
     }
 
     /// Get a constraint by name.  Returns either a constraint if one was found, or `None` if none were found.
@@ -2434,21 +2467,16 @@ impl Model {
     }
 
     // add quadratic terms of objective function.
-    fn add_qpterms(&mut self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
+    fn add_qpterms_indices(&mut self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
         self.check_apicall(unsafe {
             ffi::GRBaddqpterms(
                 self.ptr,
-                qrow.len() as ffi::c_int,
+                Self::sparse_count(qval.len())?,
                 qrow.as_ptr(),
                 qcol.as_ptr(),
                 qval.as_ptr(),
             )
         })
-    }
-
-    // remove quadratic terms of objective function.
-    fn del_qpterms(&mut self) -> Result<()> {
-        self.check_apicall(unsafe { ffi::GRBdelq(self.ptr) })
     }
 
     pub(crate) fn check_apicall(&self, error: ffi::c_int) -> Result<()> {
