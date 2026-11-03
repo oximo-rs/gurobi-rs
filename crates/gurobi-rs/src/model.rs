@@ -1602,6 +1602,54 @@ impl Model {
         Ok(self.qconstrs.add_new(self.update_mode_lazy()?))
     }
 
+    /// Add `constant + sum(c*x) + sum(q*x*y) sense rhs` without coefficient maps.
+    /// Quadratic coefficients use the polynomial convention.
+    /// Duplicate terms are additive. All handles, names and term counts are
+    /// validated before adding the native row.
+    ///
+    /// # Errors
+    /// Returns handle ownership/state errors, invalid names, coefficient counts
+    /// exceeding the C API range, or native Gurobi errors.
+    pub fn add_qconstr_sparse(
+        &mut self,
+        name: &str,
+        linear: impl IntoIterator<Item = (Var, f64)>,
+        quadratic: impl IntoIterator<Item = (Var, Var, f64)>,
+        constant: f64,
+        sense: ConstrSense,
+        rhs: f64,
+    ) -> Result<QConstr> {
+        let cname = CString::new(name)?;
+        let (lvar, lval) = self.build_idx_arrays_obj(linear.into_iter())?;
+        let (qrow, qcol, qval) = self.build_idx_arrays_obj_obj(quadratic.into_iter())?;
+        let nlinear = Self::sparse_count(lval.len())?;
+        let nquadratic = Self::sparse_count(qval.len())?;
+        let lazy = self.update_mode_lazy()?;
+        self.check_apicall(unsafe {
+            ffi::GRBaddqconstr(
+                self.ptr,
+                nlinear,
+                lvar.as_ptr(),
+                lval.as_ptr(),
+                nquadratic,
+                qrow.as_ptr(),
+                qcol.as_ptr(),
+                qval.as_ptr(),
+                sense as ffi::c_char,
+                rhs - constant,
+                cname.as_ptr(),
+            )
+        })?;
+
+        Ok(self.qconstrs.add_new(lazy))
+    }
+
+    fn sparse_count(len: usize) -> Result<ffi::c_int> {
+        ffi::c_int::try_from(len).map_err(|_| {
+            Error::AlgebraicError("sparse coefficient count exceeds C API range".into())
+        })
+    }
+
     /// Add a single [Special Order Set (SOS)](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
     /// constraint to the model.
     ///
@@ -1700,6 +1748,48 @@ impl Model {
                 .map(|v| (*v, coeff_map.get(v).copied().unwrap_or(0.))),
         )?;
         self.set_attr(attr::ObjCon, obj_cons)?;
+        self.set_attr(attr::ModelSense, sense)
+    }
+
+    /// Replace the objective with `constant + sum(c*x) + sum(q*x*y)` without
+    /// constructing coefficient maps. Coefficients use the polynomial convention.
+    /// Duplicates are additive and omitted linear and quadratic coefficients are
+    /// cleared. Like [`Self::set_objective`], this first updates pending objects.
+    /// All handles and coefficient counts are validated before replacing values.
+    ///
+    /// # Errors
+    /// Returns handle ownership/state errors, coefficient counts exceeding the
+    /// C API range, or native Gurobi errors. A native error may leave partial edits.
+    pub fn set_objective_sparse(
+        &mut self,
+        linear: impl IntoIterator<Item = (Var, f64)>,
+        quadratic: impl IntoIterator<Item = (Var, Var, f64)>,
+        constant: f64,
+        sense: ModelSense,
+    ) -> Result<()> {
+        self.update()?;
+        let variables = self.get_vars()?;
+        let nvars = Self::sparse_count(variables.len())?;
+        let mut coefficients = vec![0.0; variables.len()];
+        for (variable, coefficient) in linear {
+            let index = self.get_index_build(&variable)?;
+            coefficients[index as usize] += coefficient;
+        }
+
+        let (qrow, qcol, qval) = self.build_idx_arrays_obj_obj(quadratic.into_iter())?;
+        Self::sparse_count(qval.len())?;
+        self.del_qpterms()?;
+        if !qval.is_empty() {
+            self.add_qpterms(&qrow, &qcol, &qval)?;
+        }
+
+        if nvars != 0 {
+            self.check_apicall(unsafe {
+                ffi::GRBsetdblattrarray(self.ptr, c"Obj".as_ptr(), 0, nvars, coefficients.as_ptr())
+            })?;
+        }
+
+        self.set_attr(attr::ObjCon, constant)?;
         self.set_attr(attr::ModelSense, sense)
     }
 
