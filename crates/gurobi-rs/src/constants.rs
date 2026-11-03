@@ -139,7 +139,7 @@ impl TryFrom<c_char> for VarType {
 }
 
 /// Sense for new linear/quadratic constraint
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(u8)]
 pub enum ConstrSense {
     /// An equality constraint
