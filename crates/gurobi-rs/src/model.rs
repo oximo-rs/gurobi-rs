@@ -19,6 +19,15 @@ use crate::prelude::*;
 use crate::util::AsPtr;
 use crate::{Error, Result};
 
+/// Linear and quadratic terms of a quadratic constraint.
+#[derive(Debug, Clone, PartialEq)]
+pub struct QConstrTerms {
+    /// Linear `(variable, coefficient)` terms.
+    pub linear: Vec<(Var, f64)>,
+    /// Quadratic `(row variable, column variable, coefficient)` terms.
+    pub quadratic: Vec<(Var, Var, f64)>,
+}
+
 /// The data needed to add one variable with [`Model::add_vars`].
 ///
 /// The column coefficients contain `(constraint, coefficient)` pairs.  The
@@ -2434,6 +2443,96 @@ impl Model {
             )
         })?;
         Ok(value)
+    }
+
+    /// Retrieve the quadratic terms of the objective as `(row variable, column variable, coefficient)`.
+    ///
+    /// Each tuple `(x, y, c)` represents `c * x * y`, including when `x == y`.
+    /// Gurobi may combine duplicate terms and reorder variables and terms.
+    /// Linear objective coefficients and the constant are available through `Obj` and `ObjCon`.
+    /// This queries the last updated model; call [`Model::update`] to apply queued changes.
+    ///
+    /// # Errors
+    /// Returns [`Error::ModelUpdateNeeded`] when the variable list needs an update,
+    /// or [`Error::FromAPI`] if a Gurobi query fails.
+    pub fn get_qobjective_terms(&self) -> Result<Vec<(Var, Var, f64)>> {
+        let vars = self.get_vars()?;
+        let mut n = self.get_attr(attr::NumQNZs)?;
+        let mut row = vec![0; n as usize];
+        let mut col = vec![0; n as usize];
+        let mut val = vec![0.0; n as usize];
+        self.check_apicall(unsafe {
+            ffi::GRBgetq(
+                self.ptr,
+                &mut n,
+                row.as_mut_ptr(),
+                col.as_mut_ptr(),
+                val.as_mut_ptr(),
+            )
+        })?;
+        Ok((0..n as usize)
+            .map(|i| (vars[row[i] as usize], vars[col[i] as usize], val[i]))
+            .collect())
+    }
+
+    /// Retrieve linear and quadratic terms of a quadratic constraint.
+    ///
+    /// A quadratic tuple `(x, y, c)` represents `c * x * y`, including when
+    /// `x == y`. Gurobi may combine duplicate terms and reorder variables and terms.
+    /// These are left-hand-side terms; query `QCSense` and `QCRHS` for the sense
+    /// and right-hand side. This queries the last updated model; call
+    /// [`Model::update`] to apply queued changes.
+    ///
+    /// # Errors
+    /// Returns [`Error::ModelObjectPending`], [`Error::ModelObjectRemoved`], or
+    /// [`Error::ModelObjectMismatch`] for an invalid constraint handle;
+    /// [`Error::ModelUpdateNeeded`] when the variable list needs an update; or
+    /// [`Error::FromAPI`] if a Gurobi query fails.
+    pub fn get_qconstr_terms(&self, constr: &QConstr) -> Result<QConstrTerms> {
+        let index = self.get_index(constr)?;
+        let vars = self.get_vars()?;
+        let (mut nl, mut nq) = (0, 0);
+        self.check_apicall(unsafe {
+            ffi::GRBgetqconstr(
+                self.ptr,
+                index,
+                &mut nl,
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+                &mut nq,
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+            )
+        })?;
+        let (mut li, mut lv, mut qr, mut qc, mut qv) = (
+            vec![0; nl as usize],
+            vec![0.0; nl as usize],
+            vec![0; nq as usize],
+            vec![0; nq as usize],
+            vec![0.0; nq as usize],
+        );
+        self.check_apicall(unsafe {
+            ffi::GRBgetqconstr(
+                self.ptr,
+                index,
+                &mut nl,
+                li.as_mut_ptr(),
+                lv.as_mut_ptr(),
+                &mut nq,
+                qr.as_mut_ptr(),
+                qc.as_mut_ptr(),
+                qv.as_mut_ptr(),
+            )
+        })?;
+        Ok(QConstrTerms {
+            linear: (0..nl as usize)
+                .map(|i| (vars[li[i] as usize], lv[i]))
+                .collect(),
+            quadratic: (0..nq as usize)
+                .map(|i| (vars[qr[i] as usize], vars[qc[i] as usize], qv[i]))
+                .collect(),
+        })
     }
 
     /// Change a single constant matrix coefficient of the model.
