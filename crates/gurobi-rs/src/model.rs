@@ -211,11 +211,13 @@ impl Model {
         O2: ModelObject,
     {
         let n = iter.size_hint().0;
+        crate::util::checked_count(n)?;
         let mut ov1 = Vec::with_capacity(n);
         let mut ov2 = Vec::with_capacity(n);
         let mut tv = Vec::with_capacity(n);
 
         for (o1, o2, t) in iter {
+            crate::util::checked_next_count(ov1.len())?;
             ov1.push(self.get_index_build(&o1)?);
             ov2.push(self.get_index_build(&o2)?);
             tv.push(t);
@@ -232,10 +234,12 @@ impl Model {
         O: ModelObject,
     {
         let n = iter.size_hint().0;
+        crate::util::checked_count(n)?;
         let mut ov = Vec::with_capacity(n);
         let mut tv = Vec::with_capacity(n);
 
         for (o, t) in iter {
+            crate::util::checked_next_count(ov.len())?;
             ov.push(self.get_index_build(&o)?);
             tv.push(t);
         }
@@ -261,6 +265,7 @@ impl Model {
             if let Some(&position) = positions.get(&index) {
                 cval[position] += coeff;
             } else {
+                crate::util::checked_next_count(cind.len())?;
                 positions.insert(index, cind.len());
                 cind.push(index);
                 cval.push(coeff);
@@ -282,6 +287,7 @@ impl Model {
     #[inline]
     pub(crate) fn get_coeffs_indices_build(&self, expr: &LinExpr) -> Result<(Vec<i32>, Vec<f64>)> {
         let nterms = expr.num_terms();
+        crate::util::checked_count(nterms)?;
         let mut inds = Vec::with_capacity(nterms);
         let mut coeff = Vec::with_capacity(nterms);
         for (x, &c) in expr.iter_terms() {
@@ -297,6 +303,7 @@ impl Model {
         expr: &QuadExpr,
     ) -> Result<(Vec<i32>, Vec<i32>, Vec<f64>)> {
         let nqterms = expr.num_qterms();
+        crate::util::checked_count(nqterms)?;
         let mut rowinds = Vec::with_capacity(nqterms);
         let mut colinds = Vec::with_capacity(nqterms);
         let mut coeff = Vec::with_capacity(nqterms);
@@ -746,7 +753,7 @@ impl Model {
             let c_ptr = constrs.as_ptr();
             let v_ptr = vals.as_ptr();
             (
-                constrs.len() as c_int,
+                crate::util::checked_count(constrs.len())?,
                 Some(constrs),
                 Some(vals),
                 c_ptr,
@@ -795,6 +802,7 @@ impl Model {
     {
         let vars = vars.into_iter();
         let (capacity, _) = vars.size_hint();
+        crate::util::checked_count(capacity)?;
 
         let mut names = Vec::with_capacity(capacity);
         let mut cnames = Vec::with_capacity(capacity);
@@ -809,6 +817,7 @@ impl Model {
         let mut numvars = 0;
         let mut v_start = 0;
         for var in vars {
+            crate::util::checked_next_count(names.len())?;
             let name = CString::new(var.name)?;
             cnames.push(name.as_ptr());
             names.push(name);
@@ -819,10 +828,11 @@ impl Model {
             vbeg.push(v_start);
 
             for (constr, coeff) in var.col_coeff {
+                crate::util::checked_next_count(vind.len())?;
                 vind.push(self.get_index_build(&constr)?);
                 vval.push(coeff);
             }
-            v_start = vind.len() as c_int;
+            v_start = crate::util::checked_count(vind.len())?;
             numvars += 1;
         }
 
@@ -844,8 +854,8 @@ impl Model {
         self.check_apicall(unsafe {
             ffi::GRBaddvars(
                 self.ptr,
-                numvars as c_int,
-                vind.len() as c_int,
+                crate::util::checked_count(numvars)?,
+                crate::util::checked_count(vind.len())?,
                 vbeg.as_ptr(),
                 vind_ptr,
                 vval_ptr,
@@ -880,7 +890,7 @@ impl Model {
         self.check_apicall(unsafe {
             ffi::GRBaddconstr(
                 self.ptr,
-                cval.len() as ffi::c_int,
+                crate::util::checked_count(cval.len())?,
                 vinds.as_ptr(),
                 cval.as_ptr(),
                 sense as ffi::c_char,
@@ -932,6 +942,7 @@ impl Model {
     {
         let constr_with_name = constr_with_names.into_iter();
         let (nconstr, _) = constr_with_name.size_hint();
+        crate::util::checked_count(nconstr)?;
         let mut names = Vec::with_capacity(nconstr); // needed to ensure CString lives long enough
         let mut cnames = Vec::with_capacity(nconstr);
         let mut rhs = Vec::with_capacity(nconstr);
@@ -940,8 +951,8 @@ impl Model {
         let mut cval = Vec::with_capacity(nconstr);
         let mut senses = Vec::with_capacity(nconstr);
 
-        let mut c_start = 0;
         for (n, c) in constr_with_name {
+            crate::util::checked_next_count(names.len())?;
             let n = CString::new(n.as_ref())?;
             cnames.push(n.as_ptr());
             names.push(n);
@@ -951,9 +962,13 @@ impl Model {
 
             let (var_coeff, _) = lhs.into_parts();
             let nterms = var_coeff.len();
-            cbeg.push(c_start);
-            c_start += nterms as i32;
+            cbeg.push(crate::util::checked_count(cind.len())?);
 
+            crate::util::checked_count(
+                cind.len().checked_add(nterms).ok_or_else(|| {
+                    Error::AlgebraicError("input count exceeds C API range".into())
+                })?,
+            )?;
             cind.reserve(nterms);
             cval.reserve(nterms);
             for (var, coeff) in var_coeff {
@@ -962,11 +977,11 @@ impl Model {
             }
         }
 
-        let numnz = cind.len() as ffi::c_int;
+        let numnz = crate::util::checked_count(cind.len())?;
         self.check_apicall(unsafe {
             ffi::GRBaddconstrs(
                 self.ptr,
-                cnames.len() as ffi::c_int,
+                crate::util::checked_count(cnames.len())?,
                 numnz,
                 cbeg.as_ptr(),
                 cind.as_ptr(),
@@ -1021,6 +1036,7 @@ impl Model {
     {
         let constrs_with_names = constrs_with_names.into_iter();
         let (nconstr, _) = constrs_with_names.size_hint();
+        crate::util::checked_count(nconstr)?;
         let mut names = Vec::with_capacity(nconstr); // needed to ensure CString lives long enough
         let mut cnames = Vec::with_capacity(nconstr);
         let mut rhs = Vec::with_capacity(nconstr);
@@ -1031,6 +1047,7 @@ impl Model {
         let mut positions = FnvHashMap::default();
 
         for (n, linear, constant, sense, r) in constrs_with_names {
+            crate::util::checked_next_count(names.len())?;
             let n = CString::new(n.as_ref())?;
             cnames.push(n.as_ptr());
             names.push(n);
@@ -1102,10 +1119,9 @@ impl Model {
     ) -> Result<GenConstr> {
         let constrname = CString::new(name)?;
         let resvar_idx = self.get_index_build(&resultant_var)?;
-        let vars: Vec<_> = operand_vars
-            .into_iter()
-            .map(|v| self.get_index_build(&v))
-            .collect::<Result<_>>()?;
+        let vars = crate::util::collect_indices(
+            operand_vars.into_iter().map(|v| self.get_index_build(&v)),
+        )?;
         let constant = constant.unwrap_or(INFINITY);
 
         self.check_apicall(unsafe {
@@ -1113,7 +1129,7 @@ impl Model {
                 self.ptr,
                 constrname.as_ptr(),
                 resvar_idx as ffi::c_int,
-                vars.len() as ffi::c_int,
+                crate::util::checked_count(vars.len())?,
                 vars.as_ptr(),
                 constant as ffi::c_double,
             )
@@ -1148,10 +1164,9 @@ impl Model {
     ) -> Result<GenConstr> {
         let constrname = CString::new(name)?;
         let resvar_idx = self.get_index_build(&resultant_var)?;
-        let vars: Vec<_> = operand_vars
-            .into_iter()
-            .map(|v| self.get_index_build(&v))
-            .collect::<Result<_>>()?;
+        let vars = crate::util::collect_indices(
+            operand_vars.into_iter().map(|v| self.get_index_build(&v)),
+        )?;
         let constant = constant.unwrap_or_default();
 
         self.check_apicall(unsafe {
@@ -1159,7 +1174,7 @@ impl Model {
                 self.ptr,
                 constrname.as_ptr(),
                 resvar_idx as ffi::c_int,
-                vars.len() as ffi::c_int,
+                crate::util::checked_count(vars.len())?,
                 vars.as_ptr(),
                 constant as ffi::c_double,
             )
@@ -1234,17 +1249,16 @@ impl Model {
     ) -> Result<GenConstr> {
         let constrname = CString::new(name)?;
         let resvar_idx = self.get_index_build(&resultant_var)?;
-        let vars: Vec<_> = operand_vars
-            .into_iter()
-            .map(|v| self.get_index_build(&v))
-            .collect::<Result<_>>()?;
+        let vars = crate::util::collect_indices(
+            operand_vars.into_iter().map(|v| self.get_index_build(&v)),
+        )?;
 
         self.check_apicall(unsafe {
             ffi::GRBaddgenconstrAnd(
                 self.ptr,
                 constrname.as_ptr(),
                 resvar_idx as ffi::c_int,
-                vars.len() as ffi::c_int,
+                crate::util::checked_count(vars.len())?,
                 vars.as_ptr(),
             )
         })?;
@@ -1281,17 +1295,16 @@ impl Model {
     ) -> Result<GenConstr> {
         let constrname = CString::new(name)?;
         let resvar_idx = self.get_index_build(&resultant_var)?;
-        let vars: Vec<_> = operand_vars
-            .into_iter()
-            .map(|v| self.get_index_build(&v))
-            .collect::<Result<_>>()?;
+        let vars = crate::util::collect_indices(
+            operand_vars.into_iter().map(|v| self.get_index_build(&v)),
+        )?;
 
         self.check_apicall(unsafe {
             ffi::GRBaddgenconstrOr(
                 self.ptr,
                 constrname.as_ptr(),
                 resvar_idx,
-                vars.len() as ffi::c_int,
+                crate::util::checked_count(vars.len())?,
                 vars.as_ptr(),
             )
         })?;
@@ -1325,10 +1338,9 @@ impl Model {
     ) -> Result<GenConstr> {
         let constrname = CString::new(name)?;
         let resvar_idx = self.get_index_build(&resultant_var)?;
-        let vars: Vec<_> = operand_vars
-            .into_iter()
-            .map(|v| self.get_index_build(&v))
-            .collect::<Result<_>>()?;
+        let vars = crate::util::collect_indices(
+            operand_vars.into_iter().map(|v| self.get_index_build(&v)),
+        )?;
         let norm = match norm {
             Norm::L0 => 0.,
             Norm::L1 => 1.,
@@ -1341,7 +1353,7 @@ impl Model {
                 self.ptr,
                 constrname.as_ptr(),
                 resvar_idx,
-                vars.len() as ffi::c_int,
+                crate::util::checked_count(vars.len())?,
                 vars.as_ptr(),
                 norm as ffi::c_double,
             )
@@ -1380,7 +1392,7 @@ impl Model {
                 constrname.as_ptr(),
                 self.get_index_build(&ind)?,
                 ind_val as ffi::c_int,
-                cval.len() as ffi::c_int,
+                crate::util::checked_count(cval.len())?,
                 vinds.as_ptr(),
                 cval.as_ptr(),
                 sense as ffi::c_char,
@@ -1416,7 +1428,13 @@ impl Model {
         let constrname = CString::new(name)?;
         let x_idx = self.get_index_build(&x)?;
         let y_idx = self.get_index_build(&y)?;
-        let (x_points, y_points): (Vec<_>, Vec<_>) = points.into_iter().unzip();
+        let mut x_points = Vec::new();
+        let mut y_points = Vec::new();
+        for (x, y) in points {
+            crate::util::checked_next_count(x_points.len())?;
+            x_points.push(x);
+            y_points.push(y);
+        }
 
         self.check_apicall(unsafe {
             ffi::GRBaddgenconstrPWL(
@@ -1424,7 +1442,7 @@ impl Model {
                 constrname.as_ptr(),
                 x_idx,
                 y_idx,
-                x_points.len() as ffi::c_int,
+                crate::util::checked_count(x_points.len())?,
                 x_points.as_ptr(),
                 y_points.as_ptr(),
             )
@@ -1466,7 +1484,7 @@ impl Model {
                 constrname.as_ptr(),
                 x_idx,
                 y_idx,
-                coeffs.len() as ffi::c_int,
+                crate::util::checked_count(coeffs.len())?,
                 coeffs.as_mut_ptr(),
                 options.as_ptr(),
             )
@@ -1507,7 +1525,7 @@ impl Model {
                 self.ptr,
                 constrname.as_ptr(),
                 resvar_idx,
-                opcode.len() as ffi::c_int,
+                crate::util::checked_count(opcode.len())?,
                 opcode.as_ptr(),
                 data.as_ptr(),
                 parent.as_ptr(),
@@ -1615,7 +1633,7 @@ impl Model {
         self.check_apicall(unsafe {
             ffi::GRBaddrangeconstr(
                 self.ptr,
-                coeff.len() as ffi::c_int,
+                crate::util::checked_count(coeff.len())?,
                 inds.as_ptr(),
                 coeff.as_ptr(),
                 lb,
@@ -1647,6 +1665,7 @@ impl Model {
     {
         let ranges_with_names = ranges_with_names.into_iter();
         let (nconstr, _) = ranges_with_names.size_hint();
+        crate::util::checked_count(nconstr)?;
         let mut names = Vec::with_capacity(nconstr); // needed to ensure CString lives long enough
         let mut cnames = Vec::with_capacity(nconstr);
         let mut ubs = Vec::with_capacity(nconstr);
@@ -1655,8 +1674,8 @@ impl Model {
         let mut cind = Vec::with_capacity(nconstr);
         let mut cval = Vec::with_capacity(nconstr);
 
-        let mut c_start = 0;
         for (n, r) in ranges_with_names {
+            crate::util::checked_next_count(names.len())?;
             let n = CString::new(n.as_ref())?;
             cnames.push(n.as_ptr());
             names.push(n);
@@ -1666,9 +1685,13 @@ impl Model {
 
             let (var_coeff, _) = expr.into_parts();
             let nterms = var_coeff.len();
-            cbeg.push(c_start);
-            c_start += nterms as i32;
+            cbeg.push(crate::util::checked_count(cind.len())?);
 
+            crate::util::checked_count(
+                cind.len().checked_add(nterms).ok_or_else(|| {
+                    Error::AlgebraicError("input count exceeds C API range".into())
+                })?,
+            )?;
             cind.reserve(nterms);
             cval.reserve(nterms);
             for (var, coeff) in var_coeff {
@@ -1677,11 +1700,11 @@ impl Model {
             }
         }
 
-        let numnz = cind.len() as ffi::c_int;
+        let numnz = crate::util::checked_count(cind.len())?;
         self.check_apicall(unsafe {
             ffi::GRBaddrangeconstrs(
                 self.ptr,
-                cnames.len() as ffi::c_int,
+                crate::util::checked_count(cnames.len())?,
                 numnz,
                 cbeg.as_ptr(),
                 cind.as_ptr(),
@@ -1743,6 +1766,7 @@ impl Model {
     {
         let ranges_with_names = ranges_with_names.into_iter();
         let (nconstr, _) = ranges_with_names.size_hint();
+        crate::util::checked_count(nconstr)?;
         let mut names = Vec::with_capacity(nconstr); // needed to ensure CString lives long enough
         let mut cnames = Vec::with_capacity(nconstr);
         let mut ubs = Vec::with_capacity(nconstr);
@@ -1753,6 +1777,7 @@ impl Model {
         let mut positions = FnvHashMap::default();
 
         for (n, linear, constant, lb, ub) in ranges_with_names {
+            crate::util::checked_next_count(names.len())?;
             let n = CString::new(n.as_ref())?;
             cnames.push(n.as_ptr());
             names.push(n);
@@ -1816,10 +1841,10 @@ impl Model {
         self.check_apicall(unsafe {
             ffi::GRBaddqconstr(
                 self.ptr,
-                lval.len() as ffi::c_int,
+                crate::util::checked_count(lval.len())?,
                 lvar.as_ptr(),
                 lval.as_ptr(),
-                qval.len() as ffi::c_int,
+                crate::util::checked_count(qval.len())?,
                 qrow.as_ptr(),
                 qcol.as_ptr(),
                 qval.as_ptr(),
@@ -1875,9 +1900,7 @@ impl Model {
     }
 
     fn sparse_count(len: usize) -> Result<ffi::c_int> {
-        ffi::c_int::try_from(len).map_err(|_| {
-            Error::AlgebraicError("sparse coefficient count exceeds C API range".into())
-        })
+        crate::util::checked_count(len)
     }
 
     /// Add a single [Special Order Set (SOS)](https://docs.gurobi.com/projects/optimizer/en/current/reference/)
@@ -1895,10 +1918,12 @@ impl Model {
     ) -> Result<SOS> {
         let var_weight_pairs = var_weight_pairs.into_iter();
         let n = var_weight_pairs.size_hint().0;
+        crate::util::checked_count(n)?;
         let mut ind = Vec::with_capacity(n);
         let mut weight = Vec::with_capacity(n);
 
         for (var, w) in var_weight_pairs {
+            crate::util::checked_next_count(ind.len())?;
             ind.push(self.get_index_build(&var)?);
             weight.push(w);
         }
@@ -1909,7 +1934,7 @@ impl Model {
             ffi::GRBaddsos(
                 self.ptr,
                 1,
-                ind.len() as ffi::c_int,
+                crate::util::checked_count(ind.len())?,
                 &sostype,
                 &beg,
                 ind.as_ptr(),
@@ -1929,15 +1954,13 @@ impl Model {
     /// - [`Error::ModelObjectMismatch`] if some variables are from a different model.
     /// - [`Error::FromAPI`] if a Gurobi API error occurs.
     pub fn del_genconstrs(&mut self, constrs: impl IntoIterator<Item = GenConstr>) -> Result<()> {
-        let constr_indices: Vec<_> = constrs
-            .into_iter()
-            .map(|c| self.get_index_build(&c))
-            .collect::<Result<_>>()?;
+        let constr_indices =
+            crate::util::collect_indices(constrs.into_iter().map(|c| self.get_index_build(&c)))?;
 
         self.check_apicall(unsafe {
             ffi::GRBdelgenconstrs(
                 self.ptr,
-                constr_indices.len() as ffi::c_int,
+                crate::util::checked_count(constr_indices.len())?,
                 constr_indices.as_ptr(),
             )
         })?;
@@ -1957,20 +1980,25 @@ impl Model {
     pub fn set_objective(&mut self, expr: impl Into<Expr>, sense: ModelSense) -> Result<()> {
         self.update()?;
         let expr: Expr = expr.into();
-        self.del_qpterms()?;
-
-        let expr = if expr.is_linear() {
-            expr.into_linexpr().unwrap()
+        let (expr, quadratic) = if expr.is_linear() {
+            (expr.into_linexpr().unwrap(), None)
         } else {
             let qexpr = expr.into_quadexpr();
-            let (qrow, qcol, qval) = self.get_qcoeffs_indices_build(&qexpr)?;
-            self.add_qpterms_indices(&qrow, &qcol, &qval)?;
-            let (_, expr) = qexpr.into_parts();
-            expr
+            let terms = self.get_qcoeffs_indices_build(&qexpr)?;
+            Self::sparse_count(terms.2.len())?;
+            let (_, linear) = qexpr.into_parts();
+            (linear, Some(terms))
         };
-
         let (coeff_map, obj_cons) = expr.into_parts();
-
+        for var in coeff_map.keys() {
+            self.get_index_build(var)?;
+        }
+        let vars = self.get_vars()?;
+        crate::util::checked_count(vars.len())?;
+        self.del_qpterms()?;
+        if let Some((qrow, qcol, qval)) = quadratic {
+            self.add_qpterms_indices(&qrow, &qcol, &qval)?;
+        }
         self.set_obj_attr_batch(
             attr::Obj,
             self.get_vars()?
@@ -2389,9 +2417,11 @@ impl Model {
     ) -> Result<()> {
         let points = points.into_iter();
         let n = points.size_hint().0;
+        crate::util::checked_count(n)?;
         let mut xvals = Vec::with_capacity(n);
         let mut yvals = Vec::with_capacity(n);
         for (x, y) in points {
+            crate::util::checked_next_count(xvals.len())?;
             xvals.push(x);
             yvals.push(y);
         }
@@ -2400,7 +2430,7 @@ impl Model {
             ffi::GRBsetpwlobj(
                 self.ptr,
                 self.get_index_build(var)?,
-                xvals.len() as ffi::c_int,
+                crate::util::checked_count(xvals.len())?,
                 xvals.as_ptr(),
                 yvals.as_ptr(),
             )
@@ -2557,7 +2587,7 @@ impl Model {
         self.check_apicall(unsafe {
             ffi::GRBchgcoeffs(
                 self.as_mut_ptr(),
-                vind.len() as ffi::c_int,
+                crate::util::checked_count(vind.len())?,
                 cind.as_ptr(),
                 vind.as_ptr(),
                 val.as_ptr(),
@@ -2831,7 +2861,11 @@ mod tests {
         assert_eq!(model.get_index_build(&z).unwrap(), 2);
 
         model.remove(y).unwrap();
-        let c2 = model.add_constr("c2", c!(z + y <= 1)).unwrap(); // I know it's weird, because y is removed, but that's what Gurobi does
+        assert!(matches!(
+            model.add_constr("invalid", c!(z + y <= 1)),
+            Err(Error::ModelObjectRemoved)
+        ));
+        let c2 = model.add_constr("c2", c!(z <= 1)).unwrap();
         assert_eq!(model.get_index_build(&c2).unwrap(), 1);
         assert_eq!(model.get_attr(attr::NumVars).unwrap(), 2);
         assert_eq!(model.get_index(&x).unwrap(), 0);

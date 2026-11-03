@@ -141,3 +141,29 @@ fn add_ranges_uses_total_nonzeros_and_returns_distinct_handles() -> gurobi_rs::R
     assert_eq!(model.get_coeff(&z, &constrs[1])?, 3.0);
     Ok(())
 }
+
+#[test]
+fn batches_reject_removed_handles_before_update() -> gurobi_rs::Result<()> {
+    let mut model = Model::new("removed-batch")?;
+    let x = add_ctsvar!(model)?;
+    let c = model.add_constr("existing", c!(x <= 1))?;
+
+    model.update()?;
+    model.remove(c)?;
+    assert!(matches!(
+        model.add_vars([VarSpec::new("bad", Continuous, 0.0, 0.0, 1.0, [(c, 1.0)])]),
+        Err(gurobi_rs::Error::ModelObjectRemoved)
+    ));
+
+    model.remove(x)?;
+    assert!(matches!(
+        model.add_constrs([(&"bad", c!(x <= 1))]),
+        Err(gurobi_rs::Error::ModelObjectRemoved)
+    ));
+
+    model.update()?;
+    assert_eq!(model.get_attr(attr::NumVars)?, 0);
+    assert_eq!(model.get_attr(attr::NumConstrs)?, 0);
+
+    Ok(())
+}

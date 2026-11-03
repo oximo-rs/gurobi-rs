@@ -181,7 +181,8 @@ impl<T: ModelObject> IdxManager<T> {
         if let Some(state) = self.lookup.get(o) {
             match *state {
                 IdxState::Pending => Err(Error::ModelObjectPending),
-                IdxState::Present(idx) | IdxState::Build(idx) | IdxState::Removed(idx) => Ok(idx),
+                IdxState::Present(idx) | IdxState::Build(idx) => Ok(idx),
+                IdxState::Removed(_) => Err(Error::ModelObjectRemoved),
             }
         } else if o.model_id() == self.model_id {
             Err(Error::ModelObjectRemoved)

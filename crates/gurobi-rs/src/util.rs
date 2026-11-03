@@ -49,3 +49,39 @@ fn conversion_must_succeed() {
     let s2 = unsafe { copy_c_str(cs.as_ptr()) };
     assert!(s1 == s2);
 }
+
+/// Convert an input count to the range accepted by the C API.
+pub(crate) fn checked_count(len: usize) -> crate::Result<crate::ffi::c_int> {
+    crate::ffi::c_int::try_from(len)
+        .map_err(|_| crate::Error::AlgebraicError("input count exceeds C API range".into()))
+}
+
+pub(crate) fn checked_next_count(len: usize) -> crate::Result<()> {
+    let next = len
+        .checked_add(1)
+        .ok_or_else(|| crate::Error::AlgebraicError("input count exceeds C API range".into()))?;
+    checked_count(next).map(|_| ())
+}
+
+pub(crate) fn collect_indices(
+    iter: impl IntoIterator<Item = crate::Result<i32>>,
+) -> crate::Result<Vec<i32>> {
+    let mut result = Vec::new();
+    for index in iter {
+        checked_next_count(result.len())?;
+        result.push(index?);
+    }
+    Ok(result)
+}
+
+#[cfg(test)]
+mod checked_count_tests {
+    #[test]
+    fn boundaries() {
+        assert_eq!(super::checked_count(0).unwrap(), 0);
+        assert_eq!(super::checked_count(i32::MAX as usize).unwrap(), i32::MAX);
+        assert!(super::checked_count(i32::MAX as usize + 1).is_err());
+        assert!(super::checked_next_count(i32::MAX as usize).is_err());
+        assert!(super::checked_next_count(i32::MAX as usize - 1).is_ok());
+    }
+}

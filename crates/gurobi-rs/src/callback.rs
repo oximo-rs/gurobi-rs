@@ -926,7 +926,7 @@ impl<'a> CbCtx<'a> {
         self.check_apicall(unsafe {
             ffi::GRBcbcut(
                 self.cbdata,
-                coeff.len() as ffi::c_int,
+                crate::util::checked_count(coeff.len())?,
                 inds.as_ptr(),
                 coeff.as_ptr(),
                 sense as ffi::c_char,
@@ -942,7 +942,7 @@ impl<'a> CbCtx<'a> {
         self.check_apicall(unsafe {
             ffi::GRBcblazy(
                 self.cbdata,
-                coeff.len() as ffi::c_int,
+                crate::util::checked_count(coeff.len())?,
                 inds.as_ptr(),
                 coeff.as_ptr(),
                 sense as ffi::c_char,

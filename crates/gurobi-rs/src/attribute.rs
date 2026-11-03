@@ -12,7 +12,7 @@ use std::ptr::{null, null_mut};
 use cstr_enum::AsCStr;
 
 use crate::ffi;
-use crate::ffi::{c_char, c_int};
+use crate::ffi::c_char;
 use crate::model_object::*;
 use crate::util::{AsPtr, copy_c_str};
 use crate::{ConstrSense, Model, ModelSense, Result, Status, VarType};
@@ -89,15 +89,14 @@ macro_rules! impl_obj_get {
             model: &Model,
             inds: I,
         ) -> Result<Vec<$t>> {
-            let inds: Result<Vec<_>> = inds.into_iter().collect();
-            let inds = inds?;
+            let inds = crate::util::collect_indices(inds)?;
             let mut vals = vec![$default; inds.len()];
 
             unsafe {
                 model.check_apicall($getbatch(
                     model.as_mut_ptr(),
                     self.as_cstr().as_ptr(),
-                    inds.len() as c_int,
+                    crate::util::checked_count(inds.len())?,
                     inds.as_ptr(),
                     vals.as_mut_ptr(),
                 ))?;
@@ -125,10 +124,12 @@ macro_rules! impl_obj_set {
         ) -> Result<()> {
             let idx_val_pairs = idx_val_pairs.into_iter();
             let size_hint = idx_val_pairs.size_hint().0;
+            crate::util::checked_count(size_hint)?;
             let mut inds = Vec::with_capacity(size_hint);
             let mut vals = Vec::with_capacity(size_hint);
 
             for (i, v) in idx_val_pairs {
+                crate::util::checked_next_count(inds.len())?;
                 inds.push(i?);
                 vals.push(v);
             }
@@ -137,7 +138,7 @@ macro_rules! impl_obj_set {
                 model.check_apicall($setbatch(
                     model.as_mut_ptr(),
                     self.as_cstr().as_ptr(),
-                    inds.len() as c_int,
+                    crate::util::checked_count(inds.len())?,
                     inds.as_ptr(),
                     vals.as_ptr(),
                 ))?;
@@ -167,15 +168,14 @@ macro_rules! impl_obj_get_custom {
             model: &Model,
             inds: I,
         ) -> Result<Vec<$t>> {
-            let inds: Result<Vec<_>> = inds.into_iter().collect();
-            let inds = inds?;
+            let inds = crate::util::collect_indices(inds)?;
             let mut vals = vec![$default; inds.len()];
 
             unsafe {
                 model.check_apicall($getbatch(
                     model.as_mut_ptr(),
                     self.as_cstr().as_ptr(),
-                    inds.len() as c_int,
+                    crate::util::checked_count(inds.len())?,
                     inds.as_ptr(),
                     vals.as_mut_ptr(),
                 ))?;
@@ -315,15 +315,14 @@ where
         model: &Model,
         idx: I,
     ) -> Result<Vec<String>> {
-        let inds: Result<Vec<_>> = idx.into_iter().collect();
-        let inds = inds?;
+        let inds = crate::util::collect_indices(idx)?;
 
         unsafe {
             let mut cstrings: Vec<*const c_char> = vec![std::ptr::null(); inds.len()];
             model.check_apicall(ffi::GRBgetstrattrlist(
                 model.as_mut_ptr(),
                 self.as_cstr().as_ptr(),
-                inds.len() as c_int,
+                crate::util::checked_count(inds.len())?,
                 inds.as_ptr(),
                 cstrings.as_mut_ptr(),
             ))?;
@@ -359,11 +358,13 @@ where
     ) -> Result<()> {
         let idx_val_pairs = idx_val_pairs.into_iter();
         let size_hint = idx_val_pairs.size_hint().0;
+        crate::util::checked_count(size_hint)?;
         let mut inds = Vec::with_capacity(size_hint);
         let mut cstrings = Vec::with_capacity(size_hint);
         let mut cstr_ptrs = Vec::with_capacity(size_hint);
 
         for (i, s) in idx_val_pairs {
+            crate::util::checked_next_count(inds.len())?;
             let cs = CString::new(s)?;
             inds.push(i?);
             cstr_ptrs.push(cs.as_ptr());
@@ -374,7 +375,7 @@ where
             model.check_apicall(ffi::GRBsetstrattrlist(
                 model.as_mut_ptr(),
                 self.as_cstr().as_ptr(),
-                inds.len() as c_int,
+                crate::util::checked_count(inds.len())?,
                 inds.as_ptr(),
                 cstr_ptrs.as_ptr(),
             ))
