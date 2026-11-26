@@ -128,7 +128,8 @@ macro_rules! impl_func_constr {
             let y_idx = self.get_index_build(&y)?;
             let options = CString::new(options)?;
 
-            self.check_apicall(unsafe {
+            let lazy = self.update_mode_lazy()?;
+            self.check_add_apicall(unsafe {
                 $ffi_fn_name(
                     self.ptr,
                     constrname.as_ptr(),
@@ -138,7 +139,7 @@ macro_rules! impl_func_constr {
                 )
             })?;
 
-            Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+            Ok(self.genconstrs.add_new(lazy))
         }
     };
 }
@@ -172,7 +173,8 @@ macro_rules! impl_funca_constr {
             let y_idx = self.get_index_build(&y)?;
             let options = CString::new(options)?;
 
-            self.check_apicall(unsafe {
+            let lazy = self.update_mode_lazy()?;
+            self.check_add_apicall(unsafe {
                 $ffi_fn_name(
                     self.ptr,
                     constrname.as_ptr(),
@@ -183,7 +185,7 @@ macro_rules! impl_funca_constr {
                 )
             })?;
 
-            Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+            Ok(self.genconstrs.add_new(lazy))
         }
     };
 }
@@ -762,7 +764,8 @@ impl Model {
         } else {
             (0, None, None, std::ptr::null(), std::ptr::null())
         };
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddvar(
                 self.ptr,
                 numnz,
@@ -775,7 +778,7 @@ impl Model {
                 name.as_ptr(),
             )
         })?;
-        Ok(self.vars.add_new(self.update_mode_lazy()?))
+        Ok(self.vars.add_new(lazy))
     }
 
     /// Add multiple decision variables to the model in a single Gurobi API call.
@@ -851,7 +854,7 @@ impl Model {
         } else {
             vval.as_ptr()
         };
-        self.check_apicall(unsafe {
+        self.check_add_apicall(unsafe {
             ffi::GRBaddvars(
                 self.ptr,
                 crate::util::checked_count(numvars)?,
@@ -887,7 +890,8 @@ impl Model {
         let (lhs, sense, rhs) = con.into_normalised_linear()?;
         let constrname = CString::new(name)?;
         let (vinds, cval) = self.get_coeffs_indices_build(&lhs)?;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddconstr(
                 self.ptr,
                 crate::util::checked_count(cval.len())?,
@@ -899,7 +903,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.constrs.add_new(self.update_mode_lazy()?))
+        Ok(self.constrs.add_new(lazy))
     }
 
     /// Add multiple linear constraints to the model in a single Gurobi API call.
@@ -978,7 +982,8 @@ impl Model {
         }
 
         let numnz = crate::util::checked_count(cind.len())?;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddconstrs(
                 self.ptr,
                 crate::util::checked_count(cnames.len())?,
@@ -992,7 +997,6 @@ impl Model {
             )
         })?;
 
-        let lazy = self.update_mode_lazy()?;
         Ok((0..cnames.len())
             .map(|_| self.constrs.add_new(lazy))
             .collect())
@@ -1073,7 +1077,8 @@ impl Model {
         } else {
             cval.as_ptr()
         };
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddconstrs(
                 self.ptr,
                 nconstr,
@@ -1087,7 +1092,6 @@ impl Model {
             )
         })?;
 
-        let lazy = self.update_mode_lazy()?;
         Ok((0..cnames.len())
             .map(|_| self.constrs.add_new(lazy))
             .collect())
@@ -1124,7 +1128,8 @@ impl Model {
         )?;
         let constant = constant.unwrap_or(INFINITY);
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrMin(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1135,7 +1140,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add a MAX constraint to the model.
@@ -1169,7 +1174,8 @@ impl Model {
         )?;
         let constant = constant.unwrap_or_default();
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrMax(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1180,7 +1186,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add an ABS constraint to the model.
@@ -1208,7 +1214,8 @@ impl Model {
         let resvar_idx = self.get_index_build(&resultant_var)?;
         let argvar_idx = self.get_index_build(&argument_var)?;
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrAbs(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1217,7 +1224,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add an AND constraint to the model.
@@ -1253,7 +1260,8 @@ impl Model {
             operand_vars.into_iter().map(|v| self.get_index_build(&v)),
         )?;
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrAnd(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1263,7 +1271,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add an OR constraint to the model.
@@ -1299,7 +1307,8 @@ impl Model {
             operand_vars.into_iter().map(|v| self.get_index_build(&v)),
         )?;
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrOr(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1309,7 +1318,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add a NORM constraint to the model.
@@ -1348,7 +1357,8 @@ impl Model {
             Norm::LInfinity => INFINITY,
         };
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrNorm(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1359,7 +1369,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add an indicator constraint to the model.
@@ -1386,7 +1396,8 @@ impl Model {
         let constrname = CString::new(name)?;
         let (lhs, sense, rhs) = con.into_normalised_linear()?;
         let (vinds, cval) = self.get_coeffs_indices_build(&lhs)?;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrIndicator(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1400,7 +1411,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add a piecewise-linear constraint to the model.
@@ -1436,7 +1447,8 @@ impl Model {
             y_points.push(y);
         }
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrPWL(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1448,7 +1460,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// Add a polynomial function constraint to the model.
@@ -1478,7 +1490,8 @@ impl Model {
         let y_idx = self.get_index_build(&y)?;
         let options = CString::new(options)?;
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrPoly(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1490,7 +1503,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     /// (Gurobi 13+) Add a general nonlinear constraint $y = f(x_1, \ldots, x_k)$ defined by an
@@ -1520,7 +1533,8 @@ impl Model {
         let constrname = CString::new(name)?;
         let resvar_idx = self.get_index_build(&resvar)?;
 
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddgenconstrNL(
                 self.ptr,
                 constrname.as_ptr(),
@@ -1532,7 +1546,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.genconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.genconstrs.add_new(lazy))
     }
 
     impl_func_constr!(
@@ -1630,7 +1644,8 @@ impl Model {
         let constrname = CString::new(name)?;
         let (expr, lb, ub) = expr.into_normalised()?;
         let (inds, coeff) = self.get_coeffs_indices_build(&expr)?;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddrangeconstr(
                 self.ptr,
                 crate::util::checked_count(coeff.len())?,
@@ -1642,7 +1657,6 @@ impl Model {
             )
         })?;
 
-        let lazy = self.update_mode_lazy()?;
         let var = self.vars.add_new(lazy);
         let cons = self.constrs.add_new(lazy);
         Ok((var, cons))
@@ -1701,7 +1715,8 @@ impl Model {
         }
 
         let numnz = crate::util::checked_count(cind.len())?;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddrangeconstrs(
                 self.ptr,
                 crate::util::checked_count(cnames.len())?,
@@ -1716,7 +1731,6 @@ impl Model {
         })?;
 
         let ncons = names.len();
-        let lazy = self.update_mode_lazy()?;
         let vars = (0..ncons).map(|_| self.vars.add_new(lazy)).collect();
         let cons = (0..ncons).map(|_| self.constrs.add_new(lazy)).collect();
         Ok((vars, cons))
@@ -1803,7 +1817,8 @@ impl Model {
         } else {
             cval.as_ptr()
         };
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddrangeconstrs(
                 self.ptr,
                 nconstr,
@@ -1818,7 +1833,6 @@ impl Model {
         })?;
 
         let ncons = names.len();
-        let lazy = self.update_mode_lazy()?;
         let vars = (0..ncons).map(|_| self.vars.add_new(lazy)).collect();
         let cons = (0..ncons).map(|_| self.constrs.add_new(lazy)).collect();
         Ok((vars, cons))
@@ -1838,7 +1852,8 @@ impl Model {
         let (qrow, qcol, qval) = self.get_qcoeffs_indices_build(&lhs)?;
         let (_, lexpr) = lhs.into_parts();
         let (lvar, lval) = self.get_coeffs_indices_build(&lexpr)?;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddqconstr(
                 self.ptr,
                 crate::util::checked_count(lval.len())?,
@@ -1854,7 +1869,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.qconstrs.add_new(self.update_mode_lazy()?))
+        Ok(self.qconstrs.add_new(lazy))
     }
 
     /// Add `constant + sum(c*x) + sum(q*x*y) sense rhs` without coefficient maps.
@@ -1880,7 +1895,7 @@ impl Model {
         let nlinear = Self::sparse_count(lval.len())?;
         let nquadratic = Self::sparse_count(qval.len())?;
         let lazy = self.update_mode_lazy()?;
-        self.check_apicall(unsafe {
+        self.check_add_apicall(unsafe {
             ffi::GRBaddqconstr(
                 self.ptr,
                 nlinear,
@@ -1930,7 +1945,8 @@ impl Model {
 
         let beg = 0;
         let sostype = sostype as c_int;
-        self.check_apicall(unsafe {
+        let lazy = self.update_mode_lazy()?;
+        self.check_add_apicall(unsafe {
             ffi::GRBaddsos(
                 self.ptr,
                 1,
@@ -1942,7 +1958,7 @@ impl Model {
             )
         })?;
 
-        Ok(self.sos.add_new(self.update_mode_lazy()?))
+        Ok(self.sos.add_new(lazy))
     }
 
     /// Delete a list of general constraints from an existing model.
@@ -2231,6 +2247,12 @@ impl Model {
     /// variables numerically, such as a nonlinear expression tree.
     pub fn var_index(&self, var: &Var) -> Result<i32> {
         self.get_index_build(var)
+    }
+
+    /// Return the model-local index of a linear constraint for APIs that
+    /// encode rows numerically, such as [`Model::add_vars_csc`].
+    pub fn constr_index(&self, constr: &Constr) -> Result<i32> {
+        self.get_index_build(constr)
     }
 
     /// Set a model parameter.  Parameters (objects with the `Param` trait) can be found in the [`param`] module.
@@ -2597,7 +2619,7 @@ impl Model {
 
     // add quadratic terms of objective function.
     fn add_qpterms_indices(&mut self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
-        self.check_apicall(unsafe {
+        self.check_add_apicall(unsafe {
             ffi::GRBaddqpterms(
                 self.ptr,
                 Self::sparse_count(qval.len())?,
@@ -2613,6 +2635,27 @@ impl Model {
             return Err(self.env.error_from_api(error));
         }
         Ok(())
+    }
+
+    /// Like [`Model::check_apicall`], for native calls that add to the model.
+    ///
+    /// When such a call fails, Gurobi discards every modification since the
+    /// last update.
+    pub(crate) fn check_add_apicall(&mut self, error: ffi::c_int) -> Result<()> {
+        if error != 0 {
+            let err = self.env.error_from_api(error);
+            self.discard_pending();
+            return Err(err);
+        }
+        Ok(())
+    }
+
+    fn discard_pending(&mut self) {
+        self.vars.discard_pending();
+        self.constrs.discard_pending();
+        self.genconstrs.discard_pending();
+        self.qconstrs.discard_pending();
+        self.sos.discard_pending();
     }
 }
 
@@ -2808,6 +2851,9 @@ impl std::convert::From<AsyncModel> for Model {
         model.0
     }
 }
+
+#[path = "model/raw_csr.rs"]
+mod raw_csr;
 
 #[cfg(test)]
 mod tests {

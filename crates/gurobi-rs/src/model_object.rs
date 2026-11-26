@@ -128,6 +128,7 @@ pub struct IdxManager<T: Hash + Eq> {
     update_action: UpdateAction,
     next_id: u32,
     model_id: u32,
+    pending: usize,
     order: Vec<T>,
     lookup: FnvHashMap<T, IdxState>,
 }
@@ -152,6 +153,7 @@ impl<T: ModelObject> IdxManager<T> {
             lookup,
             model_id,
             next_id: 0,
+            pending: 0,
             update_action: UpdateAction::Noop,
             update_model: false,
         }
@@ -191,6 +193,39 @@ impl<T: ModelObject> IdxManager<T> {
         }
     }
 
+    /// Number of objects that already hold a native index.
+    /// Removed objects keep their index until an update compacts them, so they are counted.
+    pub(crate) fn indexed_len(&self) -> usize {
+        self.order.len() - self.pending
+    }
+
+    /// Mirroring Gurobi, which discards all pending modifications
+    /// when an add call fails.
+    pub(crate) fn discard_pending(&mut self) {
+        let lookup = &mut self.lookup;
+        let keep = self
+            .order
+            .iter()
+            .rposition(|o| matches!(lookup[o], IdxState::Present(_) | IdxState::Removed(_)))
+            .map_or(0, |last| last + 1);
+        for o in self.order.drain(keep..) {
+            lookup.remove(&o);
+        }
+
+        if self.update_action == UpdateAction::Rebuild {
+            for state in lookup.values_mut() {
+                if let IdxState::Removed(idx) = *state {
+                    *state = IdxState::Present(idx);
+                }
+            }
+        }
+        self.pending = 0;
+        self.update_model = false;
+        self.update_action = UpdateAction::Noop;
+
+        debug_assert_eq!(self.lookup.len(), self.order.len());
+    }
+
     pub(crate) fn model_update_needed(&self) -> bool {
         self.update_model
     }
@@ -223,6 +258,7 @@ impl<T: ModelObject> IdxManager<T> {
         self.next_id += 1;
         self.mark_update_action(UpdateAction::Fix);
         let state = if update_lazy {
+            self.pending += 1;
             IdxState::Pending
         } else {
             IdxState::Build(self.lookup.len() as i32)
@@ -309,6 +345,7 @@ impl<T: ModelObject> IdxManager<T> {
         }
 
         debug_assert_eq!(self.lookup.len(), self.lookup.len());
+        self.pending = 0;
         self.update_model = false;
         self.update_action = UpdateAction::Noop;
     }
@@ -324,6 +361,8 @@ mod tests {
         SwitchUpdateMode,
         AddVar(u8),
         RemoveVar(u8),
+        Update,
+        DiscardPending,
     }
 
     fn action_strat(num: usize) -> impl Strategy<Value = Vec<Action>> {
@@ -331,6 +370,8 @@ mod tests {
             Just(Action::SwitchUpdateMode),
             any::<u8>().prop_map(Action::AddVar),
             any::<u8>().prop_map(Action::RemoveVar),
+            Just(Action::Update),
+            Just(Action::DiscardPending),
         ];
         proptest::collection::vec(s, ..num)
     }
@@ -338,6 +379,7 @@ mod tests {
     fn state_machine(actions: Vec<Action>) {
         let mut update_mode_lazy = true;
         let mut vars: Vec<Option<Var>> = vec![None; u8::MAX as usize + 1];
+        let mut committed = vars.clone();
         let mut idx_manager = IdxManager::new(0);
         for a in actions {
             match a {
@@ -345,7 +387,39 @@ mod tests {
                     update_mode_lazy = !update_mode_lazy;
                     if !update_mode_lazy {
                         idx_manager.update(); // purge old pending states
+                        committed.clone_from(&vars);
                     }
+                }
+                Action::Update => {
+                    idx_manager.update();
+                    committed.clone_from(&vars);
+                    assert_eq!(idx_manager.indexed_len(), idx_manager.order.len());
+                    let mut indices: Vec<i32> = vars
+                        .iter()
+                        .flatten()
+                        .map(|v| idx_manager.get_index(v).unwrap())
+                        .collect();
+                    indices.sort_unstable();
+                    assert!(indices.iter().copied().eq(0..indices.len() as i32));
+                }
+                Action::DiscardPending => {
+                    idx_manager.discard_pending();
+                    for (live, kept) in vars.iter().zip(&committed) {
+                        if let Some(v) = live {
+                            if kept != live {
+                                assert_eq!(
+                                    idx_manager.get_index_build(v),
+                                    Err(Error::ModelObjectRemoved)
+                                );
+                            }
+                        }
+                    }
+                    vars.clone_from(&committed);
+                    for v in vars.iter().flatten() {
+                        let idx = idx_manager.get_index(v).unwrap();
+                        assert!((idx as usize) < idx_manager.indexed_len());
+                    }
+                    assert!(!idx_manager.model_update_needed());
                 }
                 Action::AddVar(i) => {
                     let i = i as usize;
@@ -394,6 +468,16 @@ mod tests {
             RemoveVar(1),
             SwitchUpdateMode,
             AddVar(1),
+        ]);
+        state_machine(vec![
+            AddVar(0),
+            AddVar(1),
+            Update,
+            RemoveVar(0),
+            AddVar(2),
+            DiscardPending,
+            AddVar(3),
+            Update,
         ]);
     }
 }
